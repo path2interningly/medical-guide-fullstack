@@ -1,10 +1,15 @@
-import React, { useMemo } from 'react';
-import ReactQuill from 'react-quill';
+import React, { useMemo, useEffect } from 'react';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+
+// Register custom formats
+const LineHeightStyle = Quill.import('formats/lineheight');
+LineHeightStyle.whitelist = ['1', '1.15', '1.5', '1.75', '2', '2.5', '3'];
+Quill.register(LineHeightStyle, true);
 
 /**
  * RichTextEditor - Full-featured text editor with Google Docs/Word-like capabilities
- * Features: Fonts, formatting, tables, images, lists, alignment, colors, etc.
+ * Features: Fonts, font sizes, line height, formatting, lists with nested numbering, colors, etc.
  */
 export default function RichTextEditor({ value, onChange, placeholder = 'Start typing...', className = '' }) {
   
@@ -12,8 +17,11 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Start t
   const modules = useMemo(() => ({
     toolbar: {
       container: [
-        // Font and size
-        [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],
+        // Font family
+        [{ 'font': ['', 'sans-serif', 'serif', 'monospace', 'script'] }],
+        
+        // Font size (more granular options)
+        [{ 'size': ['8px', '9px', '10px', '11px', '12px', '14px', '16px', '18px', '20px', '22px', '24px', '26px', '28px', '32px', '36px', '40px', '44px', '48px'] }],
         
         // Headers
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -27,12 +35,15 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Start t
         // Script (superscript/subscript)
         [{ 'script': 'sub' }, { 'script': 'super' }],
         
-        // Lists and indentation
+        // Lists and indentation (NESTED NUMBER FORMAT SUPPORT)
         [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
         [{ 'indent': '-1' }, { 'indent': '+1' }],
         
         // Alignment
         [{ 'align': [] }],
+        
+        // Line height
+        [{ 'lineheight': ['1', '1.15', '1.5', '1.75', '2', '2.5', '3'] }],
         
         // Block elements
         ['blockquote', 'code-block'],
@@ -58,7 +69,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Start t
     'color', 'background',
     'script',
     'list', 'bullet', 'check', 'indent',
-    'align',
+    'align', 'lineheight',
     'blockquote', 'code-block',
     'link', 'image', 'video',
     'clean'
@@ -209,20 +220,43 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Start t
           font-weight: 600;
         }
 
-        /* Enhanced list styles */
-        .rich-text-editor-wrapper .ql-editor ul[data-checked="true"],
-        .rich-text-editor-wrapper .ql-editor ul[data-checked="false"] {
-          pointer-events: none;
+        /* Enhanced list styles with nested numbering */
+        .rich-text-editor-wrapper .ql-editor ol {
+          list-style-type: decimal;
+          margin-left: 1.5em;
         }
 
-        .rich-text-editor-wrapper .ql-editor li[data-checked="true"]::before {
-          content: '✓';
-          color: #10b981;
+        .rich-text-editor-wrapper .ql-editor ol ol {
+          list-style-type: decimal;
+          margin-left: 1.5em;
         }
 
-        .rich-text-editor-wrapper .ql-editor li[data-checked="false"]::before {
-          content: '○';
-          color: #9ca3af;
+        .rich-text-editor-wrapper .ql-editor ol ol ol {
+          list-style-type: decimal;
+          margin-left: 1.5em;
+        }
+
+        .rich-text-editor-wrapper .ql-editor ol li {
+          list-style-type: decimal;
+          margin-bottom: 0.25em;
+        }
+
+        .rich-text-editor-wrapper .ql-editor ul {
+          list-style-type: disc;
+          margin-left: 1.5em;
+        }
+
+        .rich-text-editor-wrapper .ql-editor ul li {
+          list-style-type: disc;
+          margin-bottom: 0.25em;
+        }
+
+        .rich-text-editor-wrapper .ql-editor ul ul {
+          list-style-type: circle;
+        }
+
+        .rich-text-editor-wrapper .ql-editor ul ul ul {
+          list-style-type: square;
         }
 
         /* Code block styling */
