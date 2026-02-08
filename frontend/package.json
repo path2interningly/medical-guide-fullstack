@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx"
   },
   "dependencies": {
+    "@tinymce/tinymce-react": "^5.1.1",
     "axios": "^1.6.5",
     "bcryptjs": "^3.0.3",
     "html2canvas": "^1.4.1",
@@ -22,6 +23,7 @@
     "react-i18next": "^16.5.4",
     "react-quill": "^2.0.0",
     "tesseract.js": "^7.0.0",
+    "tinymce": "^6.8.6",
     "wouter": "^3.2.1"
   },
   "devDependencies": {
