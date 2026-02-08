@@ -1,0 +1,340 @@
+﻿import { useEffect, useRef, useState } from 'react';
+import { useCards } from '../context/CardsContext';
+import MedicalCard from '../components/cards/MedicalCard';
+import CreateCardModal from '../components/modals/CreateCardModal';
+import MassGenerateModal from '../components/modals/MassGenerateModal';
+import ContextMenu from '../components/modals/ContextMenu';
+import { exportCardsToPDF } from '../services/pdfExport';
+
+export default function SectionView({ specialty, section, showContextHints }) {
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
+
+  const sectionTitles = {
+    consultations: 'Consultations by Symptom',
+    prescriptions: 'Prescriptions & Orders',
+    investigations: 'Investigations & Interpretations',
+    procedures: 'Technical Procedures',
+    templates: 'Templates & Forms',
+    calculators: 'Calculators & Scores',
+    urgences: 'Emergencies & Algorithms'
+  };
+
+  const { getCardsBySection, addCard, updateCard, deleteCard, searchCards, getFavoriteCards } = useCards();
+  const [editingCard, setEditingCard] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showMassGenerateModal, setShowMassGenerateModal] = useState(false);
+  const [createMode, setCreateMode] = useState('select');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('section');
+  const [sortOrder, setSortOrder] = useState('alphabetical');
+  const [contextMenu, setContextMenu] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      const isTyping = tag === 'input' || tag === 'textarea' || document.activeElement?.isContentEditable;
+      if (isTyping) return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        setEditingCard(null);
+        setCreateMode('select');
+        setShowCreateModal(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const sectionCards = getCardsBySection(specialty, section);
+  const allSearchResults = searchCards(searchQuery);
+  const sectionSearchResults = allSearchResults.filter(c => c.specialty === specialty && c.section === section);
+  const favoriteCards = getFavoriteCards();
+
+  let displayCards = sectionCards;
+  let pageTitle = sectionTitles[section];
+
+  if (viewMode === 'search' && searchQuery) {
+    displayCards = sectionSearchResults;
+    pageTitle = `Search: "${searchQuery}" (${sectionSearchResults.length})`;
+  } else if (viewMode === 'favorites') {
+    displayCards = favoriteCards;
+    pageTitle = 'Favorites';
+  }
+
+  // Apply sorting
+  displayCards = [...displayCards].sort((a, b) => {
+    if (sortOrder === 'alphabetical') {
+      // Handle both string titles and object titles with en/fr properties
+      const titleA = typeof a.title === 'string' ? a.title : (a.title?.en || a.title?.fr || '');
+      const titleB = typeof b.title === 'string' ? b.title : (b.title?.en || b.title?.fr || '');
+      return titleA.toLowerCase().localeCompare(titleB.toLowerCase());
+    } else if (sortOrder === 'recentlyAdded') {
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    } else if (sortOrder === 'recentlyModified') {
+      return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+    }
+    return 0;
+  });
+
+  const paginatedCards = displayCards.slice((page - 1) * pageSize, page * pageSize);
+
+  const handleEdit = (card, mode = 'manual') => {
+    setEditingCard(card);
+    setCreateMode(mode);
+    setShowCreateModal(true);
+  };
+
+  const handleCreate = (cardData) => {
+    if (editingCard?.id) {
+      updateCard(editingCard.id, cardData);
+    } else {
+      addCard(cardData);
+    }
+    setShowCreateModal(false);
+    setEditingCard(null);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      setViewMode('search');
+    } else {
+      setViewMode('section');
+    }
+  };
+
+  const handleCardContextMenu = (e, card) => {
+    e.preventDefault();
+    const handleCopy = async () => {
+      const text = `${card.title?.en || card.title?.fr || ''}\n\n${card.content?.en || card.content?.fr || ''}`;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        console.error('Copy error:', err);
+      }
+    };
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      items: [
+        {
+          label: '📋 Copy',
+          action: () => handleCopy()
+        },
+        {
+          label: '✏️ Edit',
+          action: () => handleEdit(card, 'manual')
+        },
+        {
+          label: '🗑️ Delete',
+          action: () => deleteCard(card.id)
+        }
+      ]
+    });
+  };
+
+  return (
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-800">
+          {pageTitle}
+        </h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              setEditingCard(null);
+              setCreateMode('select');
+              setShowCreateModal(true);
+            }}
+            className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 text-2xl shadow-lg transition group relative"
+            title="Create Card (N)"
+          >
+            ➕
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+              Create Card {showContextHints && '(N)'}
+            </span>
+          </button>
+          <button
+            onClick={() => setShowMassGenerateModal(true)}
+            className="px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 text-2xl shadow-lg transition group relative"
+            title="Mass Generate"
+          >
+            📚
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+              Mass Generate
+            </span>
+          </button>
+          <button
+            onClick={async () => {
+              if (cards.length === 0) {
+                alert('No cards to export');
+                return;
+              }
+              setIsExporting(true);
+              try {
+                await exportCardsToPDF(cards, `${pageTitle}-cards.pdf`);
+              } catch (error) {
+                alert('Export failed: ' + error.message);
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+            disabled={isExporting}
+            className="px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-2xl shadow-lg transition group relative"
+            title="Export to PDF"
+          >
+            {isExporting ? '⏳' : '📄'}
+            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+              Export PDF
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6 flex gap-3 flex-wrap items-center group">
+        <div className="flex-1 min-w-xs relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Search by title, symptom, medication..."
+            ref={searchInputRef}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            title="Search cards (Ctrl+K or /)"
+          />
+          {showContextHints && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition pointer-events-none">
+              Ctrl+K
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => {
+            setViewMode(viewMode === 'favorites' ? 'section' : 'favorites');
+            setSearchQuery('');
+          }}
+          className={`px-4 py-3 rounded-lg text-2xl transition group relative ${
+            viewMode === 'favorites'
+              ? 'bg-red-500 text-white shadow-lg'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+          title="Favorites"
+        >
+          ⭐
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
+            Favorites ({favoriteCards.length})
+          </span>
+        </button>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          title="Sort cards"
+        >
+          <option value="alphabetical">🔤 Alphabetical</option>
+          <option value="recentlyAdded">🆕 Recently Added</option>
+          <option value="recentlyModified">✏️ Recently Modified</option>
+        </select>
+      </div>
+
+      {displayCards.length === 0 ? (
+        <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+          <div className="text-6xl mb-4"></div>
+          <p className="text-gray-500 text-xl mb-2 font-semibold">
+            {viewMode === 'search' ? 'No results' : 'No content'}
+          </p>
+          <p className="text-gray-400 text-sm">
+            {viewMode === 'search' 
+              ? 'Try another search'
+              : 'Click + Create Card to add your first entry'}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {paginatedCards.map((card) => (
+                <div
+                  key={card.id}
+                  onContextMenu={(e) => handleCardContextMenu(e, card)}
+                >
+                  <MedicalCard
+                    card={card}
+                    onEdit={(cardData, mode) => handleEdit(cardData, mode)}
+                    onDelete={deleteCard}
+                    onMenu={(e) => handleCardContextMenu(e, card)}
+                  />
+                </div>
+            ))}
+          </div>
+          <div className="flex justify-center mt-6 gap-2">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              title="Previous page"
+            >
+              ← Previous
+            </button>
+            <span className="px-3 py-1 text-gray-600 font-semibold">Page {page}</span>
+            <button
+              disabled={page * pageSize >= displayCards.length}
+              onClick={() => setPage(page + 1)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition"
+              title="Next page"
+            >
+              Next →
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Create Card Modal */}
+      {showCreateModal && (
+        <CreateCardModal
+          specialty={specialty}
+          section={section}
+          onCreateCard={handleCreate}
+          onClose={() => setShowCreateModal(false)}
+          editingCard={editingCard}
+          mode={createMode}
+        />
+      )}
+
+      {/* Mass Generate Modal */}
+      {showMassGenerateModal && (
+        <MassGenerateModal
+          isOpen={showMassGenerateModal}
+          onClose={() => setShowMassGenerateModal(false)}
+          currentSpecialty={specialty}
+        />
+      )}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+
+    </div>
+  );
+}

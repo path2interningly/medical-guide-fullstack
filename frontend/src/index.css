@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  --safe-area-inset-top: env(safe-area-inset-top, 0);
+  --safe-area-inset-right: env(safe-area-inset-right, 0);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+  --safe-area-inset-left: env(safe-area-inset-left, 0);
+}
+
+body {
+  @apply bg-gray-50 text-gray-900;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, button, select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  input, textarea, select {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on iOS input focus */
+  }
+}
+
+/* Prevent overscroll on iOS */
+@supports (padding: max(0px)) {
+  body, html {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Smooth scrolling for better mobile experience */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimization for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

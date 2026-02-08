@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  name          String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  medicalCards  MedicalCard[]
+}
+
+model Template {
+  id          String    @id @default(uuid())
+  name        String
+  frequency   String
+  weekday     Int?
+  obligatory  Boolean   @default(false)
+  color       String    @default("#ff6fa3")
+  onePerDay   Boolean   @default(false)
+  archived    Boolean   @default(false)
+  fields      Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  entries     Entry[]
+}
+
+model Entry {
+  id         String   @id @default(uuid())
+  templateId String
+  date       String
+  data       Json
+  completed  Boolean  @default(false)
+  archived   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, date])
+  @@index([templateId])
+  @@index([date])
+}
+
+model Link {
+  id              String   @id @default(uuid())
+  name            String
+  url             String
+  emoji           String   @default("🔗")
+  category        String?
+  showAsQuickLink Boolean  @default(false)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Event {
+  id        String   @id @default(uuid())
+  title     String
+  date      String
+  type      String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicalCard {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialty   String
+  section     String
+  cardType    String
+  title       Json
+  description Json?
+  content     Json
+  icon        String?
+  tags        String[] @default([])
+  urgency     String   @default("standard")
+  order       Int      @default(0)
+  aiGenerated Boolean  @default(false)
+  published   Boolean  @default(true)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([specialty])
+  @@index([section])
+  @@index([cardType])
+  @@index([urgency])
+}

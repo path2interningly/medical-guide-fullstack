@@ -1,0 +1,31 @@
+{
+  "title": "Med in a Pocket",
+  "specialties": {
+    "gynecology": "Gynecology",
+    "obstetrics": "Obstetrics",
+    "surgery": "Surgery"
+  },
+  "sections": {
+    "consultations": "Consultations",
+    "prescriptions": "Prescriptions",
+    "investigations": "Investigations",
+    "procedures": "Procedures",
+    "templates": "Templates",
+    "calculators": "Calculators",
+    "urgences": "Emergencies"
+  },
+  "favorites": "Favorites",
+  "recent": "Recent",
+  "search_placeholder": "Search by title, symptom, medication...",
+  "ai_chat": "AI Chat",
+  "no_results": "No results",
+  "no_content": "No content",
+  "try_search": "Try another search",
+  "generate_content": "Click 'AI Chat' to generate content",
+  "edit": "Edit",
+  "delete": "Delete",
+  "copy": "Copy",
+  "copied": "Copied",
+  "references": "References & Sources",
+  "notes": "Notes"
+}
