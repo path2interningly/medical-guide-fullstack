@@ -16,7 +16,7 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
+    <script type="module">
       // Register service worker only in production (not during development)
       if ('serviceWorker' in navigator && import.meta.env.PROD) {
         navigator.serviceWorker.register('/sw.js')
