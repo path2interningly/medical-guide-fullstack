@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { generateMultipleCards, getApiKey } from '../../services/ai';
+import { generateMultipleCards } from '../../services/ai';
 import { useCards } from '../../context/CardsContext';
 
 /**
@@ -83,12 +83,6 @@ export default function MassGenerateModal({ isOpen, onClose, currentSpecialty })
   const handleSendMessage = async () => {
     if (!userInput.trim() || isProcessing) return;
 
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      setError('Please add your OpenRouter API key in Settings first.');
-      return;
-    }
-
     // Prepare context with document if available
     let contextPrompt = userInput.trim();
     if (extractedText) {
@@ -106,7 +100,6 @@ export default function MassGenerateModal({ isOpen, onClose, currentSpecialty })
       const cards = await generateMultipleCards(
         contextPrompt,
         extractedText ? 'document' : 'prompt',
-        apiKey,
         (msg) => setProgress(msg)
       );
 

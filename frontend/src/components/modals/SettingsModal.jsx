@@ -205,16 +205,16 @@ export default function SettingsModal({ isOpen, onClose, settings, onUpdate, cur
               <div className="font-semibold mb-2 text-purple-900">🤖 AI Configuration</div>
               <div className="space-y-2">
                 <label className="block">
-                  <div className="text-sm text-gray-700 mb-1">OpenRouter API Key</div>
+                  <div className="text-sm text-gray-700 mb-1">OpenRouter API Key (optional)</div>
                   <input
                     type="password"
                     value={settings?.openRouterApiKey || ''}
                     onChange={(e) => onUpdate({ ...settings, openRouterApiKey: e.target.value })}
-                    placeholder="sk-or-..."
+                    placeholder="Leave empty to use server key"
                     className="w-full px-3 py-2 border rounded text-sm focus:outline-none focus:border-purple-500"
                   />
                   <div className="text-xs text-gray-500 mt-1">
-                    Get your API key from <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">openrouter.ai/keys</a>
+                    Optional. Use your own key from <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">openrouter.ai/keys</a>
                   </div>
                 </label>
               </div>

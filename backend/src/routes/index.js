@@ -3,8 +3,54 @@ const router = express.Router();
 const prisma = require('../config/prisma');
 const authMiddleware = require('../middleware/auth');
 
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
 // Apply auth middleware to all routes
 router.use(authMiddleware);
+
+// AI Proxy (OpenRouter)
+router.post('/ai/chat', async (req, res) => {
+  try {
+    const { messages, model, temperature, max_tokens } = req.body || {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages are required' });
+    }
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return res.status(500).json({ error: 'AI service not configured' });
+    }
+
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
+        'X-Title': 'Med in a Pocket'
+      },
+      body: JSON.stringify({
+        model: model || process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet',
+        messages,
+        temperature: typeof temperature === 'number' ? temperature : 0.7,
+        max_tokens: typeof max_tokens === 'number' ? max_tokens : 4000,
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      return res.status(500).json({ error: error.error?.message || 'AI request failed' });
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+    return res.json({ content });
+  } catch (error) {
+    console.error('AI proxy error:', error);
+    return res.status(500).json({ error: 'AI request failed' });
+  }
+});
 
 // Templates
 router.get('/templates', async (req, res) => {

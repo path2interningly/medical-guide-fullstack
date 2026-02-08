@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { generateCardContent, getApiKey } from '../../services/ai';
+import { generateCardContent } from '../../services/ai';
 import RichTextEditor from '../editor/RichTextEditor';
 
 export default function CreateCardModal({ specialty, section, onCreateCard, onClose, editingCard }) {
@@ -29,12 +29,6 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
   const handleSendMessage = async () => {
     if (!userInput.trim() || isGenerating) return;
 
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      setError('Please add your OpenRouter API key in Settings first.');
-      return;
-    }
-
     const userMessage = { role: 'user', content: userInput.trim() };
     const newHistory = [...chatHistory, userMessage];
     setChatHistory(newHistory);
@@ -48,7 +42,6 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
       const result = await generateCardContent(
         userInput.trim(),
         chatHistory,
-        apiKey,
         (chunk) => {
           streamedContent += chunk;
           // Update preview in real-time

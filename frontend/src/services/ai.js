@@ -3,7 +3,8 @@
  * Handles card generation with streaming support
  */
 
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const AI_PROXY_URL = `${API_BASE_URL}/ai/chat`;
 
 /**
  * Generate card content using OpenRouter API
@@ -13,10 +14,7 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
  * @param {Function} onChunk - Callback for streaming chunks
  * @returns {Promise<Object>} - Parsed response with title, content, sources
  */
-export async function generateCardContent(prompt, chatHistory = [], apiKey, onChunk = null) {
-  if (!apiKey) {
-    throw new Error('OpenRouter API key not configured. Please add it in Settings.');
-  }
+export async function generateCardContent(prompt, chatHistory = [], onChunk = null) {
 
   const messages = [
     {
@@ -51,18 +49,15 @@ SOURCES: SOGC 2024, UpToDate, Toronto Notes`
   ];
 
   try {
-    const response = await fetch(OPENROUTER_API_URL, {
+    const response = await fetch(AI_PROXY_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Med in a Pocket'
+        ...getAuthHeader()
       },
       body: JSON.stringify({
         model: import.meta.env.VITE_AI_MODEL || 'anthropic/claude-3.5-sonnet',
-        messages: messages,
-        stream: !!onChunk,
+        messages,
         temperature: 0.7,
         max_tokens: 4000
       })
@@ -73,43 +68,12 @@ SOURCES: SOGC 2024, UpToDate, Toronto Notes`
       throw new Error(error.error?.message || 'API request failed');
     }
 
-    if (onChunk) {
-      // Handle streaming response
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let fullContent = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
-
-        for (const line of lines) {
-          const data = line.replace('data: ', '');
-          if (data === '[DONE]') continue;
-
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content || '';
-            if (content) {
-              fullContent += content;
-              onChunk(content);
-            }
-          } catch (e) {
-            // Skip invalid JSON
-          }
-        }
-      }
-
-      return parseAIResponse(fullContent);
-    } else {
-      // Handle non-streaming response
-      const data = await response.json();
-      const content = data.choices[0]?.message?.content || '';
-      return parseAIResponse(content);
+    const data = await response.json();
+    const content = data.content || '';
+    if (onChunk && content) {
+      onChunk(content);
     }
+    return parseAIResponse(content);
   } catch (error) {
     console.error('AI API Error:', error);
     throw error;
@@ -159,24 +123,9 @@ function parseAIResponse(response) {
  * Checks environment variable first, then falls back to localStorage
  * @returns {string|null}
  */
-export function getApiKey() {
-  // Check environment variable first (more secure)
-  const envKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-  if (envKey && envKey.trim()) {
-    return envKey.trim();
-  }
-
-  // Fall back to localStorage (set via Settings UI)
-  try {
-    const settings = localStorage.getItem('appSettings');
-    if (settings) {
-      const parsed = JSON.parse(settings);
-      return parsed.openRouterApiKey || null;
-    }
-  } catch (e) {
-    console.error('Failed to get API key:', e);
-  }
-  return null;
+function getAuthHeader() {
+  const token = localStorage.getItem('authToken');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
 /**
@@ -187,10 +136,7 @@ export function getApiKey() {
  * @param {Function} onProgress - Callback for progress updates
  * @returns {Promise<Array>} - Array of card objects
  */
-export async function generateMultipleCards(text, mode = 'prompt', apiKey, onProgress = null) {
-  if (!apiKey) {
-    throw new Error('OpenRouter API key not configured.');
-  }
+export async function generateMultipleCards(text, mode = 'prompt', onProgress = null) {
 
   const systemPrompt = mode === 'document' 
     ? `You are a medical education assistant. Extract key medical information from the provided document and create multiple study cards.
@@ -238,17 +184,15 @@ Format your ENTIRE response as valid JSON:
   try {
     onProgress?.('Generating cards...');
 
-    const response = await fetch(OPENROUTER_API_URL, {
+    const response = await fetch(AI_PROXY_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'Med in a Pocket - Mass Generate'
+        ...getAuthHeader()
       },
       body: JSON.stringify({
         model: import.meta.env.VITE_AI_MODEL || 'anthropic/claude-3.5-sonnet',
-        messages: messages,
+        messages,
         temperature: 0.7,
         max_tokens: 8000
       })
@@ -260,7 +204,7 @@ Format your ENTIRE response as valid JSON:
     }
 
     const data = await response.json();
-    const content = data.choices[0]?.message?.content || '';
+    const content = data.content || '';
 
     onProgress?.('Parsing generated cards...');
 
