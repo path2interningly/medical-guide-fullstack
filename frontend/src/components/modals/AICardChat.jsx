@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DynamicCardRenderer from '../DynamicCardRenderer';
 
 export default function AICardChat({ specialty, section, onCreateCard, onClose, editingCard }) {
   const [messages, setMessages] = useState([
@@ -28,13 +29,13 @@ export default function AICardChat({ specialty, section, onCreateCard, onClose, 
 
     // Simulate AI response
     setTimeout(() => {
-      const generatedTitle = generateTitle(input);
-      const generatedContent = generateContent(input);
-      setLastGenerated({ title: generatedTitle, content: generatedContent });
+      // Example: AI returns a code block with JSX
+      const jsxCode = `import React, { useState } from 'react';\n\nconst BMI = () => {\n  const [height, setHeight] = useState("");\n  const [weight, setWeight] = useState("");\n  const [bmi, setBmi] = useState(null);\n  const [category, setCategory] = useState("");\n\n  const calculateBMI = (e) => {\n    e.preventDefault();\n    if (height && weight) {\n      const heightInMeters = height / 100;\n      const bmiValue = (weight / (heightInMeters * heightInMeters)).toFixed(1);\n      setBmi(bmiValue);\n      if (bmiValue < 18.5) setCategory('Underweight');\n      else if (bmiValue < 25) setCategory('Normal weight');\n      else if (bmiValue < 30) setCategory('Overweight');\n      else setCategory('Obese');\n    }\n  };\n\n  return (\n    <form onSubmit={calculateBMI} style={{ padding: 20 }}>\n      <h3>BMI Calculator</h3>\n      <input type="number" placeholder="Height (cm)" value={height} onChange={e => setHeight(e.target.value)} />\n      <input type="number" placeholder="Weight (kg)" value={weight} onChange={e => setWeight(e.target.value)} />\n      <button type="submit">Calculate</button>\n      {bmi && (<div>BMI: {bmi} ({category})</div>)}\n    </form>\n  );\n};\n\n<BMI />`;
+      setLastGenerated({ title: 'BMI Calculator', content: jsxCode });
       const aiResponse = {
         id: Date.now() + 1,
         type: 'ai',
-        text: `I've generated a card based on your description. Here's a draft. If you want a specific format (table, bullets, algorithm), tell me and I'll revise it.\n\n**Title**: ${generatedTitle}\n\n**Content**: ${generatedContent}`
+        text: jsxCode
       };
       setMessages(prev => [...prev, aiResponse]);
       setIsGenerating(false);
@@ -74,6 +75,15 @@ export default function AICardChat({ specialty, section, onCreateCard, onClose, 
     return trimmed;
   };
 
+  // Helper to sanitize JSX code from AI output
+  const sanitizeJSX = (code) => {
+    // Remove markdown code fences and import statements
+    return code
+      .replace(/```jsx|```/g, '')
+      .replace(/import[^;]+;/g, '')
+      .trim();
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-2xl h-[90vh] flex flex-col">
@@ -82,6 +92,14 @@ export default function AICardChat({ specialty, section, onCreateCard, onClose, 
           <h2 className="text-xl font-bold">✨ AI Card Generator</h2>
           <p className="text-sm opacity-90">Create cards with AI assistance</p>
         </div>
+
+        {/* Live Preview for JSX code */}
+        {lastGenerated.content && (
+          <div className="p-4 border-b">
+            <h3 className="font-semibold mb-2">Live Calculator Preview:</h3>
+            <DynamicCardRenderer code={sanitizeJSX(lastGenerated.content)} />
+          </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
