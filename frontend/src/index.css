@@ -151,3 +151,41 @@ html {
 [dangerouslySetInnerHTML] span[style*="background-color:#dbeafe"] {
   @apply bg-blue-100 px-1 py-0.5 rounded;
 }
+
+/* Stronger selector for all tables inside your app */
+body table,
+body .card-content table,
+body .modal-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+  border: 1px solid #d1d5db;
+}
+
+body table th, body table td,
+body .card-content table th, body .card-content table td,
+body .modal-content table th, body .modal-content table td {
+  border: 1px solid #d1d5db;
+  padding: 12px;
+  text-align: left;
+}
+
+body table th,
+body .card-content table th,
+body .modal-content table th {
+  background: #dbeafe;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+body table tr:nth-child(even),
+body .card-content table tr:nth-child(even),
+body .modal-content table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+body table tr:nth-child(odd),
+body .card-content table tr:nth-child(odd),
+body .modal-content table tr:nth-child(odd) {
+  background: #ffffff;
+}
