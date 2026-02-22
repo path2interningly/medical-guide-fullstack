@@ -10,33 +10,74 @@ const AI_PROXY_URL = `${API_BASE_URL}/ai/chat`;
  * Generate card content using OpenRouter API
  * @param {string} prompt - User's request
  * @param {Array} chatHistory - Previous messages for context
- * @param {string} apiKey - OpenRouter API key
  * @param {Function} onChunk - Callback for streaming chunks
+ * @param {Object} currentContent - Existing content when editing {title, content}
  * @returns {Promise<Object>} - Parsed response with title, content, sources
  */
-export async function generateCardContent(prompt, chatHistory = [], onChunk = null) {
+export async function generateCardContent(prompt, chatHistory = [], onChunk = null, currentContent = null) {
+
+  const isEditing = currentContent && currentContent.content;
+  
+  const systemPrompt = isEditing
+    ? `You are a medical education assistant helping EDIT and ENHANCE existing study cards for medical students during clinical rotations.
+
+IMPORTANT EDITING RULES:
+1. PRESERVE all existing content unless explicitly asked to remove or change something
+2. When user asks to "add" or "include" something, ADD it to the existing content without removing anything
+3. When user asks to "change" or "fix" something, only modify that specific part
+4. Default behavior: ENHANCE and ADD to existing content
+5. ALWAYS return the FULL updated card content (do NOT return only the new section)
+6. The output must include all original sections unchanged unless the user explicitly asked to change them
+7. If the user specifies placement (e.g., "insert between Diagnostic Approach and Common Causes"), you MUST insert in that exact location
+
+CURRENT CONTENT:
+${currentContent?.content || ''}
+
+OUTPUT FORMAT - Generate only valid, visually engaging HTML:
+- Start with title tag: <strong>🎯 Card Title</strong>
+- Use <h3> with color and margin for section headers
+- Use relevant EMOJIS throughout (🔍 📋 ⚠️ 💊 🩺 ⚡ 🧪 etc.)
+- Use <strong>bold</strong> and <u>underline</u> for key terms
+- Use <ul><li> for bullet points
+- Use <ol><li> for numbered lists
+- Use <table border='1' style='border-collapse: collapse; width: 100%; margin: 0.5em 0;'> for data/comparisons
+- Add visual hierarchy with inline styling: colors, backgrounds, spacing
+- Use <span style='color: #dc2626;'>highlighted text</span> for important warnings
+- Use <span style='background-color: #fef3c7; padding: 2px 4px;'>yellow highlighting</span> for key points
+
+Make it visually interesting and scannable like professional medical content. Clean, semantic HTML only. No markdown.
+
+CRITICAL: Return the complete updated HTML for the entire card, including the original content plus your additions/edits.`
+    : `You are a medical education assistant creating quick-reference study cards for medical students during clinical rotations.
+
+Your goal: Create concise, accurate, clinically useful cards that are VISUALLY ENGAGING and easy to scan - similar to ChatGPT-4.5's professional formatting.
+
+OUTPUT FORMAT - Generate only valid, visually engaging HTML:
+- Start with title tag: <strong>🎯 Card Title</strong>
+- Use <h3> with color and margin for section headers, add emojis
+- INTEGRATE relevant EMOJIS throughout content (🔍 📋 ⚠️ 💊 🩺 ⚡ 🧪 📌 🎯 ✓ ❌ etc.)
+- Use <strong>bold</strong> and <u>underline</u> for key medical terms
+- Use <ul><li> for bullet points with emojis
+- Use <ol><li> for numbered lists/protocols
+- Use <table border='1' style='border-collapse: collapse; width: 100%; margin: 0.5em 0;'> for:
+  * Differential diagnoses
+  * Drug comparison/dosing
+  * Lab value interpretation
+  * Treatment algorithms
+- Add visual hierarchy:
+  * <span style='color: #dc2626;'>Red text</span> for warnings/contraindications
+  * <span style='color: #059669;'>Green text</span> for positive findings/normal values
+  * <span style='background-color: #fef3c7; padding: 2px 6px; border-radius: 3px;'>Yellow highlights</span> for key points
+  * <span style='background-color: #dbeafe; padding: 2px 6px; border-radius: 3px;'>Blue highlights</span> for remember/note
+- Use spacing: <br><br> between sections
+- End with sources: <p><strong>📚 Sources:</strong> Source1, Source2</p>
+
+Design for visual scannability - medical students should quickly spot critical info. Professional formatting like ChatGPT. Clean, semantic HTML only. No markdown.`;
 
   const messages = [
     {
       role: 'system',
-      content: `You are a medical education assistant helping create study cards. 
-
-Your responses should:
-1. Be accurate and based on current medical guidelines (SOGC, UpToDate, Toronto Notes, etc.)
-2. Use clear formatting with emojis, bullet points, and visual hierarchy
-3. Include algorithms/flowcharts when appropriate (using text-based trees)
-4. Be concise but comprehensive for medical students/residents
-
-IMPORTANT: Start your response with a suggested title on the first line in this format:
-TITLE: [Your suggested title here]
-
-Then provide the content. At the end, if you referenced specific sources, list them like:
-SOURCES: Source1, Source2, Source3
-
-Example:
-TITLE: Cervical Screening Algorithm
-[content here...]
-SOURCES: SOGC 2024, UpToDate, Toronto Notes`
+      content: systemPrompt
     },
     ...chatHistory.map(msg => ({
       role: msg.role,
@@ -90,24 +131,29 @@ function parseAIResponse(response) {
   let content = response;
   let sources = [];
 
-  // Extract title
-  const titleMatch = response.match(/^TITLE:\s*(.+?)$/m);
+  // Extract title from <strong> tag or first line
+  const titleMatch = response.match(/<strong>(.+?)<\/strong>/);
   if (titleMatch) {
     title = titleMatch[1].trim();
-    content = content.replace(/^TITLE:\s*.+?\n/m, '').trim();
+    content = content.replace(titleMatch[0], '').trim();
   }
 
-  // Extract sources
-  const sourcesMatch = response.match(/SOURCES:\s*(.+?)$/m);
+  // Extract sources from <strong>Sources:</strong> tag
+  const sourcesMatch = response.match(/<strong>Sources:<\/strong>\s*([^<]+)/);
   if (sourcesMatch) {
     sources = sourcesMatch[1].split(',').map(s => s.trim()).filter(Boolean);
-    content = content.replace(/\nSOURCES:\s*.+?$/m, '').trim();
+    content = content.replace(/<p>.*?<strong>Sources:<\/strong>.*?<\/p>/i, '').trim();
   }
 
-  // If no title extracted, generate one from first line or prompt
+  // If no title extracted, generate one from first <h3> or first words
   if (!title) {
-    const firstLine = content.split('\n')[0];
-    title = firstLine.length > 60 ? firstLine.substring(0, 57) + '...' : firstLine;
+    const h3Match = content.match(/<h3>(.+?)<\/h3>/);
+    if (h3Match) {
+      title = h3Match[1];
+    } else {
+      const textContent = content.replace(/<[^>]+>/g, '').substring(0, 60);
+      title = textContent.length > 50 ? textContent.substring(0, 50) + '...' : textContent;
+    }
   }
 
   return {
@@ -136,45 +182,124 @@ function getAuthHeader() {
  * @param {Function} onProgress - Callback for progress updates
  * @returns {Promise<Array>} - Array of card objects
  */
-export async function generateMultipleCards(text, mode = 'prompt', onProgress = null) {
+export async function generateMultipleCards(text, mode = 'prompt', onProgress = null, options = {}) {
+
+  const {
+    targetCount = null,
+    chunkIndex = null,
+    chunkTotal = null
+  } = options;
+
+  const chunkHint = (chunkIndex !== null && chunkTotal !== null)
+    ? `This is chunk ${chunkIndex + 1} of ${chunkTotal}.`
+    : '';
+  const targetHint = targetCount ? `Aim to produce approximately ${targetCount} cards from this input.` : '';
 
   const systemPrompt = mode === 'document' 
     ? `You are a medical education assistant. Extract key medical information from the provided document and create multiple study cards.
 
-IMPORTANT: Your response MUST be valid JSON only - an array of card objects. No other text.
+IMPORTANT - Your response MUST be valid JSON only, an array of card objects. No other text.
 
-Each card should have:
-- title: Short, descriptive title
-- content: Detailed content with emojis, formatting, algorithms if appropriate
-- sources: Array of source references (if applicable)
+CRITICAL OUTPUT RULES:
+1. Each card MUST be a self-contained, complete card with FULL HTML content (not partial snippets).
+2. Use the SAME visual formatting as single-card generation: emojis, colored section headers, tables, bold, underline, highlights.
+3. Divide the document into distinct topics/sections and generate 1 card per topic.
+4. Preserve the original content; do NOT summarize away key details.
+5. Follow the user's instructions EXACTLY and prioritize their scope above all else. If they ask for prescriptions only, output ONLY prescription-related content and omit everything else.
+6. When the user asks for prescriptions, include medication name, dose, route, frequency, duration, and the related indication(s), using whatever structure best fits the user's request.
+7. If the user explicitly requests a tab/section (e.g., "prescriptions"), set sections accordingly for ALL cards. Otherwise, choose the most relevant sections for each card.
 
-Format your ENTIRE response as valid JSON:
-[
-  {
-    "title": "Card Title",
-    "content": "Card content with details...",
-    "sources": ["Source1", "Source2"]
-  }
-]
+Each card object must include:
+- title (string)
+- content (string, HTML only)
+- sources (array of strings, MUST be real, verifiable sources)
+Optional fields:
+- sections (array of section keys chosen from: consultations, prescriptions, investigations, procedures, templates, calculators, urgences)
 
-Create 3-10 cards depending on the document length and content richness.`
-    : `You are a medical education assistant. Based on the user's request, create multiple study cards.
+SOURCES REQUIREMENTS - USE REAL, VERIFIABLE CITATIONS:
+- For prescriptions/medications: Use "Product Monograph", "CPS (Compendium of Pharmaceuticals and Specialties)", "UpToDate", "Lexicomp", "Micromedex"
+- For clinical guidelines: Cite actual organizations like "ACOG Guidelines", "SOGC Guidelines", "CDC Guidelines", "WHO Guidelines", "AHA/ACC Guidelines"
+- For obstetrics/gynecology: Use "Williams Obstetrics", "ACOG Practice Bulletins", "SOGC Clinical Practice Guidelines"
+- For general medicine: Use "Harrison's Principles of Internal Medicine", "UpToDate", "DynaMed"
+- For emergency medicine: Use "Tintinalli's Emergency Medicine", "ACLS Guidelines"
+- ONLY cite sources that actually exist and that a medical professional could verify
+- Include specific guideline numbers when applicable (e.g., "ACOG Practice Bulletin #222")
+- If you're not certain of a real source, use the most appropriate textbook or clinical resource for that topic
 
-IMPORTANT: Your response MUST be valid JSON only - an array of card objects. No other text.
+HTML FORMAT REQUIREMENTS:
+- Start content with <strong>🎯 Card Title</strong>
+- Use <h3> with color (#1e40af), font-weight 600, and spacing
+- Use emojis throughout (🔍 📋 ⚠️ 💊 🩺 ⚡ 🧪 📌 ✓ ❌)
+- Use <strong> and <u> for key terms
+- Use tables for comparisons (border='1', border-collapse: collapse; width:100%)
+- Use <span style='color: #dc2626;'> for warnings
+- Use <span style='background-color: #fef3c7; padding: 2px 6px; border-radius: 3px;'> for highlights
+- End with sources: <p><strong>📚 Sources:</strong> ...</p>
 
-Each card should have:
-- title: Short, descriptive title
-- content: Detailed content with emojis, formatting, algorithms if appropriate
-- sources: Array of source references (e.g., UpToDate, SOGC, Toronto Notes)
+${chunkHint}
+${targetHint}
 
-Format your ENTIRE response as valid JSON:
-[
-  {
-    "title": "Card Title",
-    "content": "Card content with details...",
-    "sources": ["Source1", "Source2"]
-  }
-]`;
+Format your ENTIRE response as a valid JSON array. Create as many cards as needed for full coverage (no hard limit).
+
+⚠️ JSON FORMATTING RULES (CRITICAL):
+- ONLY output valid JSON array, nothing else
+- Properly escape all quotes inside strings: use \\" for quotes in content
+- Remove ALL trailing commas before ] or }
+- Ensure all strings are properly closed with matching quotes
+- Do NOT include markdown code blocks or any text outside the JSON array`
+    : `You are a medical education assistant. Based on the user request, create multiple study cards.
+
+IMPORTANT - Your response MUST be valid JSON only, an array of card objects. No other text.
+
+CRITICAL OUTPUT RULES:
+1. Each card MUST be a self-contained, complete card with FULL HTML content (not partial snippets).
+2. Use the SAME visual formatting as single-card generation: emojis, colored section headers, tables, bold, underline, highlights.
+3. If the request includes multiple topics, split into separate cards (1 topic per card).
+4. ⚠️ VOLUME IS MANDATORY ⚠️: The targetHint below specifies EXACTLY how many cards to generate. You MUST generate that many cards. Do NOT stop early. If you're asked for 30 cards, generate 30 complete cards.
+5. ⚠️ ONE ITEM = ONE CARD: Each card must cover ONE single medication/item/topic ONLY. Do NOT combine multiple items into a single card. If given a list of medications, generate one card per medication.
+6. If user gives a list (e.g., "Estradiol, Levonorgestrel, Norethindrone"), create separate cards for EACH item - NOT one combined card about all of them.
+7. If the user explicitly requests a tab/section, set sections accordingly for ALL cards. Otherwise, choose the most relevant sections for each card.
+
+${targetHint}
+
+Each card object must include:
+- title (string)
+- content (string, HTML only)
+- sources (array of strings, MUST be real, verifiable sources)
+Optional fields:
+- sections (array of section keys chosen from: consultations, prescriptions, investigations, procedures, templates, calculators, urgences)
+
+SOURCES REQUIREMENTS - USE REAL, VERIFIABLE CITATIONS:
+- For prescriptions/medications: Use "Product Monograph", "CPS (Compendium of Pharmaceuticals and Specialties)", "UpToDate", "Lexicomp", "Micromedex"
+- For clinical guidelines: Cite actual organizations like "ACOG Guidelines", "SOGC Guidelines", "CDC Guidelines", "WHO Guidelines", "AHA/ACC Guidelines"
+- For obstetrics/gynecology: Use "Williams Obstetrics", "ACOG Practice Bulletins", "SOGC Clinical Practice Guidelines"
+- For general medicine: Use "Harrison's Principles of Internal Medicine", "UpToDate", "DynaMed"
+- For emergency medicine: Use "Tintinalli's Emergency Medicine", "ACLS Guidelines"
+- ONLY cite sources that actually exist and that a medical professional could verify
+- Include specific guideline numbers when applicable (e.g., "ACOG Practice Bulletin #222")
+- If you're not certain of a real source, use the most appropriate textbook or clinical resource for that topic
+
+HTML FORMAT REQUIREMENTS:
+- Start content with <strong>🎯 Card Title</strong>
+- Use <h3> with color (#1e40af), font-weight 600, and spacing
+- Use emojis throughout (🔍 📋 ⚠️ 💊 🩺 ⚡ 🧪 📌 ✓ ❌)
+- Use <strong> and <u> for key terms
+- Use tables for comparisons (border='1', border-collapse: collapse; width:100%)
+- Use <span style='color: #dc2626;'> for warnings
+- Use <span style='background-color: #fef3c7; padding: 2px 6px; border-radius: 3px;'> for highlights
+- End with sources: <p><strong>📚 Sources:</strong> ...</p>
+
+${chunkHint}
+${targetHint}
+
+Format your ENTIRE response as a valid JSON array.
+
+⚠️ JSON FORMATTING RULES (CRITICAL):
+- ONLY output valid JSON array, nothing else
+- Properly escape all quotes inside strings: use \\" for quotes in content
+- Remove ALL trailing commas before ] or }
+- Ensure all strings are properly closed with matching quotes
+- Do NOT include markdown code blocks or any text outside the JSON array`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -194,7 +319,7 @@ Format your ENTIRE response as valid JSON:
         model: import.meta.env.VITE_AI_MODEL || 'anthropic/claude-3.5-sonnet',
         messages,
         temperature: 0.7,
-        max_tokens: 8000
+        max_tokens: 16000
       })
     });
 
@@ -214,7 +339,59 @@ Format your ENTIRE response as valid JSON:
       throw new Error('Failed to extract valid JSON from AI response');
     }
 
-    const cards = JSON.parse(jsonMatch[0]);
+    let cards;
+    try {
+      cards = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      // Try to fix common JSON errors
+      console.warn('Initial JSON parse failed, attempting repair...', parseError);
+      
+      try {
+        // Remove trailing commas before ] or }
+        let fixed = jsonMatch[0]
+          .replace(/,(\s*[}\]])/g, '$1')
+          // Fix unescaped quotes in strings (basic attempt)
+          .replace(/(['"])(.*?)\1/gs, (match, quote, content) => {
+            // Don't process if already properly escaped
+            if (content.includes('\\' + quote)) return match;
+            // Escape unescaped quotes
+            const escaped = content.replace(new RegExp(quote, 'g'), '\\' + quote);
+            return quote + escaped + quote;
+          });
+        
+        cards = JSON.parse(fixed);
+        console.log('JSON repair successful');
+      } catch (repairError) {
+        // Last resort: try to extract individual card objects
+        console.warn('JSON repair failed, attempting object extraction...', repairError);
+        
+        const cardMatches = jsonMatch[0].matchAll(/\{[^}]*"title"[^}]*"content"[^}]*\}/g);
+        cards = [];
+        
+        for (const match of cardMatches) {
+          try {
+            const cleanMatch = match[0]
+              .replace(/,(\s*})/g, '$1')
+              .replace(/\n/g, '\\n')
+              .replace(/\r/g, '\\r')
+              .replace(/\t/g, '\\t');
+            
+            const card = JSON.parse(cleanMatch);
+            if (card.title && card.content) {
+              cards.push(card);
+            }
+          } catch (e) {
+            console.warn('Failed to parse individual card:', e);
+          }
+        }
+        
+        if (cards.length === 0) {
+          throw new Error(`JSON parsing failed: ${parseError.message}`);
+        }
+        
+        console.log(`Extracted ${cards.length} cards using fallback method`);
+      }
+    }
 
     if (!Array.isArray(cards) || cards.length === 0) {
       throw new Error('No cards were generated');
@@ -226,6 +403,7 @@ Format your ENTIRE response as valid JSON:
       title: card.title || 'Untitled',
       content: card.content || '',
       sources: Array.isArray(card.sources) ? card.sources : [],
+      sections: Array.isArray(card.sections) ? card.sections : [],
       aiGenerated: true
     }));
 

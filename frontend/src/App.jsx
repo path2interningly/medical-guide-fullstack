@@ -11,6 +11,7 @@ import ContextMenu from "./components/modals/ContextMenu";
 import AuthModal from "./components/modals/AuthModal";
 import { useTranslation } from 'react-i18next';
 import '../src/i18n';
+import { Editor } from '@tinymce/tinymce-react';
 
 // Simple error boundary
 class ErrorBoundary extends React.Component {
@@ -56,6 +57,7 @@ function AppContent() {
       ? JSON.parse(saved)
       : { showContextHints: true };
   });
+  const [content, setContent] = useState("");
 
   // Show auth modal if not authenticated
   useEffect(() => {
@@ -115,6 +117,10 @@ function AppContent() {
 
   const currentSpecialtyData = specialties[specialty];
   const currentSections = currentSpecialtyData?.sections || [];
+
+  const handleEditorChange = (newContent) => {
+    setContent(newContent);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -237,6 +243,23 @@ function AppContent() {
           specialty={specialty}
           section={section}
           showContextHints={settings.showContextHints}
+        />
+        <Editor
+          apiKey="248pojpwuzm75wqwfuiwpylujwpuqp4xdtl7bmof1l0u1s30"
+          init={{
+            height: 500,
+            menubar: true,
+            plugins: [
+              'advlist autolink lists link image charmap print preview anchor',
+              'searchreplace visualblocks code fullscreen',
+              'insertdatetime media table paste code help wordcount',
+              'lineheight'
+            ],
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+            readonly: false
+          }}
+          value={content}
+          onEditorChange={handleEditorChange}
         />
       </main>
 

@@ -195,9 +195,12 @@ export default function MedicalCard({ card, onEdit, onDelete, onMenu, onCopy }) 
         </div>
       )}
 
-      <div className="text-sm text-gray-700 mb-3 line-clamp-3 leading-relaxed">
-        {getPreviewContent().substring(0, 200)}
-        {getPreviewContent().length > 200 && '...'}
+      <div className="text-sm text-gray-700 mb-3 leading-relaxed h-20 overflow-hidden relative select-text">
+        <div 
+          className="prose prose-sm max-w-none prose-headings:my-1 prose-p:my-1 prose-li:my-0 prose-li:leading-snug [&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-blue-700 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_table]:text-xs [&_table]:border-collapse [&_table_th]:bg-gray-100 [&_table_td]:border [&_table_th]:border [&_ul]:ml-3 [&_ol]:ml-3 [&_li]:text-xs select-text"
+          dangerouslySetInnerHTML={{ __html: getPreviewContent() }}
+        />
+        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </div>
 
       {card.tags?.length > 0 && (
@@ -211,8 +214,8 @@ export default function MedicalCard({ card, onEdit, onDelete, onMenu, onCopy }) 
       )}
 
       {/* Click hint */}
-      <div className="text-xs text-gray-400 mt-3 pt-2 border-t border-gray-200">
-        💡 Click to view full details
+      <div className="text-xs text-gray-400 mt-2 pt-2 border-t border-gray-200 text-center">
+        Click to expand →
       </div>
     </div>
 

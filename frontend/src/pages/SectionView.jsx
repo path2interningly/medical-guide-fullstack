@@ -2,6 +2,7 @@
 import { useCards } from '../context/CardsContext';
 import MedicalCard from '../components/cards/MedicalCard';
 import CreateCardModal from '../components/modals/CreateCardModal';
+import ManualEditorModal from '../components/modals/ManualEditorModal';
 import MassGenerateModal from '../components/modals/MassGenerateModal';
 import ContextMenu from '../components/modals/ContextMenu';
 import { exportCardsToPDF } from '../services/pdfExport';
@@ -23,6 +24,7 @@ export default function SectionView({ specialty, section, showContextHints }) {
   const { getCardsBySection, addCard, updateCard, deleteCard, searchCards, getFavoriteCards } = useCards();
   const [editingCard, setEditingCard] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showManualEditor, setShowManualEditor] = useState(false);
   const [showMassGenerateModal, setShowMassGenerateModal] = useState(false);
   const [createMode, setCreateMode] = useState('select');
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,11 +94,16 @@ export default function SectionView({ specialty, section, showContextHints }) {
   });
 
   const paginatedCards = displayCards.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.max(1, Math.ceil(displayCards.length / pageSize));
 
   const handleEdit = (card, mode = 'manual') => {
     setEditingCard(card);
-    setCreateMode(mode);
-    setShowCreateModal(true);
+    if (mode === 'manual') {
+      setShowManualEditor(true);
+    } else {
+      setCreateMode('ai');
+      setShowCreateModal(true);
+    }
   };
 
   const handleCreate = (cardData) => {
@@ -291,7 +298,7 @@ export default function SectionView({ specialty, section, showContextHints }) {
             >
               ← Previous
             </button>
-            <span className="px-3 py-1 text-gray-600 font-semibold">Page {page}</span>
+            <span className="px-3 py-1 text-gray-600 font-semibold">Page {page} of {totalPages}</span>
             <button
               disabled={page * pageSize >= displayCards.length}
               onClick={() => setPage(page + 1)}
@@ -304,7 +311,7 @@ export default function SectionView({ specialty, section, showContextHints }) {
         </>
       )}
 
-      {/* Create Card Modal */}
+      {/* Create Card Modal (AI) */}
       {showCreateModal && (
         <CreateCardModal
           specialty={specialty}
@@ -313,6 +320,17 @@ export default function SectionView({ specialty, section, showContextHints }) {
           onClose={() => setShowCreateModal(false)}
           editingCard={editingCard}
           mode={createMode}
+        />
+      )}
+
+      {/* Manual Editor Modal */}
+      {showManualEditor && (
+        <ManualEditorModal
+          specialty={specialty}
+          section={section}
+          onCreateCard={handleCreate}
+          onClose={() => setShowManualEditor(false)}
+          editingCard={editingCard}
         />
       )}
 

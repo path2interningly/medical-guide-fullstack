@@ -11,16 +11,68 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
   
   // Card preview state
   const [previewCard, setPreviewCard] = useState(editingCard ? {
-    title: editingCard.title,
-    content: editingCard.content,
+    title: editingCard.title?.en || editingCard.title?.fr || editingCard.title,
+    content: editingCard.content?.en || editingCard.content?.fr || editingCard.content,
     sources: editingCard.aiSources || [],
     aiGenerated: editingCard.aiGenerated || false
   } : null);
   
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
+  const [showTemplates, setShowTemplates] = useState(!editingCard);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Quick template suggestions for common medical topics
+  const templates = [
+    {
+      emoji: '💊',
+      title: 'Pharmacology',
+      prompt: 'Pharmacokinetics and pharmacodynamics of [medication name]',
+      placeholder: 'e.g., metformin, lisinopril'
+    },
+    {
+      emoji: '🔍',
+      title: 'Differential Diagnosis',
+      prompt: 'Differential diagnosis and workup for [chief complaint/presentation]',
+      placeholder: 'e.g., acute abdominal pain, dyspnea'
+    },
+    {
+      emoji: '⚡',
+      title: 'Emergency Protocol',
+      prompt: 'Emergency management protocol for [condition]',
+      placeholder: 'e.g., anaphylaxis, STEMI, stroke'
+    },
+    {
+      emoji: '🩺',
+      title: 'Clinical Approach',
+      prompt: 'Clinical approach and management of [disease/condition]',
+      placeholder: 'e.g., diabetes type 2, COPD exacerbation'
+    },
+    {
+      emoji: '🧪',
+      title: 'Lab Interpretation',
+      prompt: 'Interpretation and workup of [abnormal lab finding]',
+      placeholder: 'e.g., elevated troponin, hyponatremia'
+    },
+    {
+      emoji: '📋',
+      title: 'Physical Exam',
+      prompt: 'Physical examination findings and clinical signs of [condition]',
+      placeholder: 'e.g., heart failure, appendicitis'
+    }
+  ];
+
+  const handleTemplateSelect = (template, customText) => {
+    const finalPrompt = template.prompt.replace('[medication name]', customText)
+      .replace('[chief complaint/presentation]', customText)
+      .replace('[condition]', customText)
+      .replace('[disease/condition]', customText)
+      .replace('[abnormal lab finding]', customText);
+    setUserInput(finalPrompt);
+    setShowTemplates(false);
+    inputRef.current?.focus();
+  };
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -39,6 +91,12 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
     try {
       let streamedContent = '';
       
+      // Pass existing content if editing
+      const currentContent = previewCard ? {
+        title: previewCard.title,
+        content: previewCard.content
+      } : null;
+      
       const result = await generateCardContent(
         userInput.trim(),
         chatHistory,
@@ -51,7 +109,8 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
             ...parsed,
             aiGenerated: true
           }));
-        }
+        },
+        currentContent
       );
 
       // Final update with complete response
@@ -109,6 +168,7 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
   };
 
   const handleManualEdit = () => {
+    // AI content is already HTML, no conversion needed
     setMode('manual');
   };
 
@@ -131,6 +191,22 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
     }
 
     return { title, content, sources };
+  };
+
+  // Render preview content with proper HTML formatting
+  const renderPreviewContent = (content) => {
+    if (!content) return '';
+    
+    // Convert markdown-style sections to HTML
+    let html = content
+      .replace(/^([A-Z][A-Z\s]+)$/gm, '<h3 style="color: #2563eb; font-weight: 600; margin-top: 1.5em; margin-bottom: 0.5em;">$1</h3>')
+      .replace(/^• (.+)$/gm, '<li style="margin-left: 1.5em;">$1</li>')
+      .replace(/^\d+\.\s+(.+)$/gm, '<li style="margin-left: 1.5em; list-style-type: decimal;">$1</li>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '<br><br>');
+    
+    return html;
   };
 
   // Mode selection screen
@@ -168,12 +244,16 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
 
   // AI Chat Mode - Integrated Interface
   if (mode === 'ai') {
+    const isEditingMode = !!editingCard;
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg w-full max-w-5xl h-[90vh] flex flex-col">
           {/* Header */}
-          <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-2xl font-bold">✨ AI Card Generator</h2>
+          <div className="flex justify-between items-center p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
+            <div>
+              <h2 className="text-2xl font-bold">✨ {isEditingMode ? 'Enhance Card with AI' : 'Generate Card with AI'}</h2>
+              <p className="text-xs text-gray-500 mt-1">{isEditingMode ? 'Add or modify existing content' : 'Create from scratch via AI chat'}</p>
+            </div>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -235,6 +315,35 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
 
               {/* Input */}
               <div className="p-4 border-t">
+                {/* Quick Templates */}
+                {showTemplates && chatHistory.length === 0 && (
+                  <div className="mb-3 p-3 bg-blue-50 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-semibold text-blue-700">Quick Start Templates</span>
+                      <button onClick={() => setShowTemplates(false)} className="text-blue-600 text-xs hover:underline">Hide</button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {templates.map((template, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            const input = prompt(`${template.emoji} ${template.title}\n\n${template.prompt}\n\nEnter: ${template.placeholder}`);
+                            if (input?.trim()) handleTemplateSelect(template, input.trim());
+                          }}
+                          className="p-2 bg-white border border-blue-200 rounded hover:bg-blue-50 text-left transition-colors"
+                        >
+                          <div className="text-lg mb-1">{template.emoji}</div>
+                          <div className="text-xs font-medium text-gray-700">{template.title}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!showTemplates && chatHistory.length === 0 && (
+                  <button onClick={() => setShowTemplates(true)} className="text-xs text-blue-600 hover:underline mb-2">
+                    Show templates
+                  </button>
+                )}
                 <div className="flex gap-2">
                   <input
                     ref={inputRef}
@@ -247,7 +356,7 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
                         handleSendMessage();
                       }
                     }}
-                    placeholder="Describe the card you want to create..."
+                    placeholder={previewCard ? "Add to this card or ask for changes..." : "Describe the card you want to create..."}
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
                     disabled={isGenerating}
                   />
@@ -309,10 +418,11 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
                     </div>
 
                     {/* Content */}
-                    <div className="prose max-w-none">
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 bg-gray-50 p-4 rounded">
-                        {previewCard.content}
-                      </pre>
+                    <div className="prose prose-sm max-w-none prose-headings:my-2 prose-p:my-1 prose-li:my-0 [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-blue-700 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_span]:inline [&_table]:text-xs [&_table]:border-collapse [&_table]:w-full [&_table_th]:bg-blue-100 [&_table_th]:border [&_table_th]:border-gray-300 [&_table_td]:border [&_table_td]:border-gray-300 [&_ul]:ml-4 [&_ol]:ml-4 select-text">
+                      <div 
+                        className="text-sm text-gray-700 bg-white p-4 rounded border space-y-2 select-text"
+                        dangerouslySetInnerHTML={{ __html: previewCard.content }}
+                      />
                     </div>
                   </div>
                 )}
@@ -320,25 +430,25 @@ export default function CreateCardModal({ specialty, section, onCreateCard, onCl
 
               {/* Action Buttons */}
               {previewCard && (
-                <div className="p-4 border-t space-y-2">
+                <div className="p-4 border-t space-y-2 bg-gray-50">
                   <button
                     onClick={handleAccept}
-                    className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+                    className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition-colors"
                   >
                     ✓ Accept & Save Card
                   </button>
-                  <div className="flex gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={handleManualEdit}
-                      className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100 text-sm"
+                      className="px-4 py-2 bg-blue-100 text-blue-700 border border-blue-300 rounded-lg hover:bg-blue-50 font-medium transition-colors flex items-center justify-center gap-2"
                     >
-                      ✏️ Manual Edit
+                      ✏️ Fine-tune Manually
                     </button>
                     <button
                       onClick={() => setPreviewCard(null)}
-                      className="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100 text-sm"
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors"
                     >
-                      🔄 Clear Preview
+                      🔄 Start Over
                     </button>
                   </div>
                 </div>
@@ -475,10 +585,10 @@ function ManualCardForm({ specialty, section, onCreateCard, onClose, editingCard
         <div className="flex gap-3 justify-end mt-8 pt-4 border-t">
           {onBack && (
             <button
-              onClick={onBack}
-              className="px-5 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+              onClick={() => {setMode('ai');}}
+              className="px-5 py-2 border border-purple-300 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 font-medium transition-colors"
             >
-              ← Back
+              ← Back to AI Mode
             </button>
           )}
           <button

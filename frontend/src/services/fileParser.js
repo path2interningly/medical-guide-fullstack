@@ -63,9 +63,12 @@ async function extractTextFromPdf(file) {
   // Dynamically import pdfjs-dist only when needed
   const pdfjsLib = await import('pdfjs-dist');
   
-  // Set up worker
+  // Set up worker (local via Vite)
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.min.mjs',
+      import.meta.url
+    ).toString();
   }
   
   const arrayBuffer = await file.arrayBuffer();

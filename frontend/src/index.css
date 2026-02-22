@@ -66,3 +66,88 @@ html {
     min-width: 44px;
   }
 }
+
+/* HTML Content Styling - for AI-generated and manually edited cards */
+[dangerouslySetInnerHTML] h1,
+[dangerouslySetInnerHTML] h2,
+[dangerouslySetInnerHTML] h3,
+[dangerouslySetInnerHTML] h4 {
+  @apply font-bold my-2 leading-tight;
+}
+
+[dangerouslySetInnerHTML] h3 {
+  @apply text-base text-blue-700;
+}
+
+[dangerouslySetInnerHTML] p {
+  @apply my-2 leading-relaxed;
+}
+
+[dangerouslySetInnerHTML] strong {
+  @apply font-bold;
+}
+
+[dangerouslySetInnerHTML] em {
+  @apply italic;
+}
+
+[dangerouslySetInnerHTML] u {
+  @apply underline;
+}
+
+[dangerouslySetInnerHTML] ul {
+  @apply ml-4 list-disc my-2;
+}
+
+[dangerouslySetInnerHTML] ol {
+  @apply ml-4 list-decimal my-2;
+}
+
+[dangerouslySetInnerHTML] li {
+  @apply my-1 leading-snug;
+}
+
+[dangerouslySetInnerHTML] table {
+  @apply w-full border-collapse my-3 border border-gray-300;
+}
+
+[dangerouslySetInnerHTML] th {
+  @apply bg-blue-100 border border-gray-300 p-3 font-bold text-left;
+}
+
+[dangerouslySetInnerHTML] td {
+  @apply border border-gray-300 p-3;
+}
+
+[dangerouslySetInnerHTML] tr:nth-child(even) td {
+  @apply bg-gray-50;
+}
+
+[dangerouslySetInnerHTML] code {
+  @apply bg-gray-100 px-2 py-1 rounded font-mono text-sm;
+}
+
+[dangerouslySetInnerHTML] blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic text-gray-700 my-2;
+}
+
+/* Support for colored text and highlights */
+[dangerouslySetInnerHTML] span[style*="color: #dc2626"],
+[dangerouslySetInnerHTML] span[style*="color:#dc2626"] {
+  @apply text-red-600 font-semibold;
+}
+
+[dangerouslySetInnerHTML] span[style*="color: #059669"],
+[dangerouslySetInnerHTML] span[style*="color:#059669"] {
+  @apply text-green-600 font-semibold;
+}
+
+[dangerouslySetInnerHTML] span[style*="background-color: #fef3c7"],
+[dangerouslySetInnerHTML] span[style*="background-color:#fef3c7"] {
+  @apply bg-yellow-100 px-1 py-0.5 rounded;
+}
+
+[dangerouslySetInnerHTML] span[style*="background-color: #dbeafe"],
+[dangerouslySetInnerHTML] span[style*="background-color:#dbeafe"] {
+  @apply bg-blue-100 px-1 py-0.5 rounded;
+}
