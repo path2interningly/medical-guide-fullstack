@@ -57,7 +57,9 @@ export default function AICardChat({ specialty, section, onCreateCard, onClose, 
       favorite: editingCard?.favorite || false,
       createdAt: editingCard?.createdAt || new Date().toISOString(),
       urgency: editingCard?.urgency || 'standard',
-      tags: editingCard?.tags || []
+      tags: editingCard?.tags || [],
+      aiGenerated: true,
+      cardType: 'calculator' // or dynamically set based on context
     });
     setIsSaving(false);
   };
