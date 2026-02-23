@@ -211,9 +211,9 @@ export default function MedicalCard({ card, onEdit, onDelete, onMenu, onCopy }) 
             </span>
           )}
         </div>
-      </div
+      </div>
 
-      {card.urgency !== 'standard' && (
+      {card.urgency && urgencyBadges && card.urgency !== 'standard' && urgencyBadges[card.urgency] && (
         <div className="mb-2 text-sm font-semibold text-red-600">
           {urgencyBadges[card.urgency]}
         </div>
