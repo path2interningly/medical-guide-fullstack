@@ -1,3 +1,109 @@
+/*
+ NOTE: Tailwind CSS and @apply rules are processed by PostCSS during build.
+ For Vercel/Render, ensure postcss.config.cjs and tailwind.config.js are present.
+ Do not remove @tailwind or @apply rules—they are required for production styling.
+*/
+/* Animated gradient backgrounds */
+/* Polished animated gradient backgrounds */
+.bg-animated-gradient {
+  background: linear-gradient(270deg, var(--accent), #7c3aed, #059669, #2563eb, #f9fafb);
+  background-size: 600% 600%;
+  animation: gradientMove 16s ease-in-out infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Polished custom image background */
+.bg-custom-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+.bg-custom-image::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Polished preview and modal styles */
+.preview-bg {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.modal-content {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  border-radius: 16px;
+}
+/* Background pattern, texture, and ombre classes */
+.bg-solid {
+  background: var(--accent);
+}
+.bg-gradient-ombre {
+  background: linear-gradient(135deg, var(--accent), #fff 80%);
+}
+.bg-gradient-dark {
+  background: linear-gradient(135deg, var(--accent), #1e293b 80%);
+}
+.bg-pattern-dots {
+  background-color: var(--accent);
+  background-image: radial-gradient(circle, #fff 1px, transparent 1.5px);
+  background-size: 20px 20px;
+}
+.bg-pattern-stripes {
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(45deg, #fff, #fff 10px, transparent 10px, transparent 20px);
+}
+.bg-texture-paper {
+  background-color: var(--accent);
+  background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+}
+.bg-texture-fabric {
+  background-color: var(--accent);
+  background-image: url('https://www.transparenttextures.com/patterns/fabric-of-squares.png');
+}
+/* Theme classes */
+.theme-light {
+  background-color: #f9fafb;
+  color: #1e293b;
+}
+.theme-dark {
+  background-color: #1e293b;
+  color: #f9fafb;
+}
+
+/* Font classes */
+.font-sans {
+  font-family: 'Inter', 'Helvetica', 'Arial', sans-serif;
+}
+.font-serif {
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+.font-mono {
+  font-family: 'Fira Mono', 'Menlo', 'Monaco', monospace;
+}
+
+/* Accent color classes */
+.accent-blue {
+  --accent: #2563eb;
+}
+.accent-green {
+  --accent: #059669;
+}
+.accent-purple {
+  --accent: #7c3aed;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

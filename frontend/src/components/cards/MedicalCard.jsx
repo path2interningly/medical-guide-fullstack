@@ -3,6 +3,15 @@ import { useCards } from '../../context/CardsContext';
 import CardDetailModal from '../modals/CardDetailModal';
 
 export default function MedicalCard({ card, onEdit, onDelete, onMenu, onCopy }) {
+    const [isPublic, setIsPublic] = useState(card.isPublic || false);
+
+    const handleMakePublic = async (e) => {
+      e.stopPropagation();
+      // TODO: Add API call to publish card
+      setIsPublic(true);
+      // Optionally notify user
+      alert('Card is now public!');
+    };
   const { toggleFavorite, isFavorite, trackRecent } = useCards();
   const [note, setNote] = useState(() => {
     return localStorage.getItem(`card-note-${card.id}`) || '';
@@ -186,8 +195,23 @@ export default function MedicalCard({ card, onEdit, onDelete, onMenu, onCopy }) 
           >
             {isFavorite(card.id) ? '★' : '☆'}
           </button>
+          {/* Make Public Button */}
+          {!isPublic && (
+            <button
+              onClick={handleMakePublic}
+              className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded border border-green-200 hover:bg-green-200 transition"
+              title="Make this card public"
+            >
+              🌐 Make Public
+            </button>
+          )}
+          {isPublic && (
+            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded border border-blue-200" title="This card is public">
+              🌐 Public
+            </span>
+          )}
         </div>
-      </div>
+      </div
 
       {card.urgency !== 'standard' && (
         <div className="mb-2 text-sm font-semibold text-red-600">

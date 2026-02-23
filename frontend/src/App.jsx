@@ -55,9 +55,19 @@ function AppContent() {
     const saved = localStorage.getItem('appSettings');
     return saved
       ? JSON.parse(saved)
-      : { showContextHints: true };
+      : { showContextHints: true, theme: 'light', font: 'sans', color: 'blue' };
   });
   const [content, setContent] = useState("");
+
+  // Apply theme, font, and color to body
+  useEffect(() => {
+    document.body.classList.remove('theme-light', 'theme-dark', 'font-sans', 'font-serif', 'font-mono', 'accent-blue', 'accent-green', 'accent-purple');
+    document.body.classList.add(
+      `theme-${settings.theme || 'light'}`,
+      `font-${settings.font || 'sans'}`,
+      `accent-${settings.color || 'blue'}`
+    );
+  }, [settings.theme, settings.font, settings.color]);
 
   // Show auth modal if not authenticated
   useEffect(() => {

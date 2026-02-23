@@ -1,3 +1,31 @@
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Background Style</label>
+            <select className="w-full p-2 rounded border mb-2" onChange={e => onUpdate({ ...settings, backgroundStyle: e.target.value })} value={settings?.backgroundStyle || 'bg-solid'}>
+              <option value="bg-solid">Solid</option>
+              <option value="bg-gradient-ombre">Ombre Gradient</option>
+              <option value="bg-gradient-dark">Dark Gradient</option>
+              <option value="bg-animated-gradient">Animated Gradient</option>
+              <option value="bg-pattern-dots">Dots Pattern</option>
+              <option value="bg-pattern-stripes">Stripes Pattern</option>
+              <option value="bg-texture-paper">Paper Texture</option>
+              <option value="bg-texture-fabric">Fabric Texture</option>
+              <option value="bg-custom-image">Custom Image</option>
+            </select>
+            {settings?.backgroundStyle === 'bg-custom-image' && (
+              <input
+                type="text"
+                className="w-full p-2 rounded border mt-2"
+                placeholder="Enter image URL..."
+                value={settings?.backgroundImage || ''}
+                onChange={e => onUpdate({ ...settings, backgroundImage: e.target.value })}
+              />
+            )}
+            {/* Preview */}
+            <div className={`mt-4 h-16 w-full rounded border ${settings?.backgroundStyle || 'bg-solid'}`}
+              style={settings?.backgroundStyle === 'bg-custom-image' && settings?.backgroundImage ? { backgroundImage: `url(${settings.backgroundImage})` } : {}}>
+              <span className="block text-xs text-gray-700 text-center pt-5">Preview</span>
+            </div>
+          </div>
 import { useState } from 'react';
 import TrashModal from './TrashModal';
 
@@ -54,6 +82,31 @@ export default function SettingsModal({ isOpen, onClose, settings, onUpdate, cur
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4">Settings</h2>
+
+          {/* Personalization Controls */}
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Theme</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, theme: e.target.value })} value={settings?.theme || 'light'}>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Font</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, font: e.target.value })} value={settings?.font || 'sans'}>
+              <option value="sans">Sans</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Mono</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Accent Color</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, color: e.target.value })} value={settings?.color || 'blue'}>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="purple">Purple</option>
+            </select>
+          </div>
 
           <div className="space-y-4">
             {/* Specialty Management Section */}

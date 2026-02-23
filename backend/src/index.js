@@ -4,6 +4,7 @@ const helmet = require('helmet');
 require('dotenv').config();
 
 const routes = require('./routes');
+const publicCardsRoutes = require('./routes/publicCards');
 const authRoutes = require('./routes/auth');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -30,6 +31,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', routes);
+app.use('/api/public-cards', publicCardsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

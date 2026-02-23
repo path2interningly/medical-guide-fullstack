@@ -6,6 +6,13 @@ import { exportCardToPDF } from '../../services/pdfExport';
  * Parses content for visual enhancement (color-coded sections, icons, diagrams)
  */
 export default function CardDetailModal({ card, isOpen, onClose, onContinueWithAI, onManualEdit }) {
+    const [isPublic, setIsPublic] = useState(card?.isPublic || false);
+
+    const handleMakePublic = async () => {
+      // TODO: Add API call to publish card
+      setIsPublic(true);
+      alert('Card is now public!');
+    };
   const [isExporting, setIsExporting] = useState(false);
   const [mermaidLoaded, setMermaidLoaded] = useState(false);
 
@@ -178,28 +185,6 @@ export default function CardDetailModal({ card, isOpen, onClose, onContinueWithA
           flushList();
           flushMermaid();
           tableBuffer.push(line);
-          return;
-        }
-
-        if (tableBuffer.length > 0 && !isTableLine) {
-          flushTable();
-        }
-
-        if (isArrowLine || /ALGORITHM|FLOWCHART|WORKUP/.test(sectionTitle)) {
-          mermaidBuffer.push(line);
-          return;
-        }
-
-        if (mermaidBuffer.length > 0 && !isArrowLine) {
-          flushMermaid();
-        }
-
-        if (isNumbered) {
-          if (listType !== 'ol') {
-            flushList();
-            listType = 'ol';
-          }
-          listItems.push(`<li>${line.replace(/^\d+(\.\d+)*\.?\s+/, '')}</li>`);
           return;
         }
 

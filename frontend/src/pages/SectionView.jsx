@@ -63,17 +63,11 @@ export default function SectionView({ specialty, section, showContextHints }) {
   }, []);
 
   const sectionCards = getCardsBySection(specialty, section);
-  const allSearchResults = searchCards(searchQuery);
-  const sectionSearchResults = allSearchResults.filter(c => c.specialty === specialty && c.section === section);
   const favoriteCards = getFavoriteCards();
-
-  let displayCards = sectionCards;
+  const [filteredCards, setFilteredCards] = useState(sectionCards);
+  let displayCards = filteredCards;
   let pageTitle = sectionTitles[section];
-
-  if (viewMode === 'search' && searchQuery) {
-    displayCards = sectionSearchResults;
-    pageTitle = `Search: "${searchQuery}" (${sectionSearchResults.length})`;
-  } else if (viewMode === 'favorites') {
+  if (viewMode === 'favorites') {
     displayCards = favoriteCards;
     pageTitle = 'Favorites';
   }
@@ -189,13 +183,13 @@ export default function SectionView({ specialty, section, showContextHints }) {
           </button>
           <button
             onClick={async () => {
-              if (cards.length === 0) {
+              if (displayCards.length === 0) {
                 alert('No cards to export');
                 return;
               }
               setIsExporting(true);
               try {
-                await exportCardsToPDF(cards, `${pageTitle}-cards.pdf`);
+                await exportCardsToPDF(displayCards, `${pageTitle}-cards.pdf`);
               } catch (error) {
                 alert('Export failed: ' + error.message);
               } finally {
@@ -213,53 +207,16 @@ export default function SectionView({ specialty, section, showContextHints }) {
           </button>
         </div>
       </div>
-
-      <div className="mb-6 flex gap-3 flex-wrap items-center group">
-        <div className="flex-1 min-w-xs relative">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search by title, symptom, medication..."
-            ref={searchInputRef}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            title="Search cards (Ctrl+K or /)"
-          />
-          {showContextHints && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition pointer-events-none">
-              Ctrl+K
-            </span>
-          )}
-        </div>
-        <button
-          onClick={() => {
-            setViewMode(viewMode === 'favorites' ? 'section' : 'favorites');
-            setSearchQuery('');
+      {/* AdvancedSearch for filtering and sorting */}
+      <div className="mb-6">
+        <AdvancedSearch
+          cards={sectionCards}
+          onFilter={(results) => {
+            setFilteredCards(results);
+            setPage(1);
           }}
-          className={`px-4 py-3 rounded-lg text-2xl transition group relative ${
-            viewMode === 'favorites'
-              ? 'bg-red-500 text-white shadow-lg'
-              : 'bg-gray-200 hover:bg-gray-300'
-          }`}
-          title="Favorites"
-        >
-          ⭐
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
-            Favorites ({favoriteCards.length})
-          </span>
-        </button>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-          title="Sort cards"
-        >
-          <option value="alphabetical">🔤 Alphabetical</option>
-          <option value="recentlyAdded">🆕 Recently Added</option>
-          <option value="recentlyModified">✏️ Recently Modified</option>
-        </select>
+        />
       </div>
-
       {displayCards.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <div className="text-6xl mb-4"></div>
@@ -276,17 +233,17 @@ export default function SectionView({ specialty, section, showContextHints }) {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedCards.map((card) => (
-                <div
-                  key={card.id}
-                  onContextMenu={(e) => handleCardContextMenu(e, card)}
-                >
-                  <MedicalCard
-                    card={card}
-                    onEdit={(cardData, mode) => handleEdit(cardData, mode)}
-                    onDelete={deleteCard}
-                    onMenu={(e) => handleCardContextMenu(e, card)}
-                  />
-                </div>
+              <div
+                key={card.id}
+                onContextMenu={(e) => handleCardContextMenu(e, card)}
+              >
+                <MedicalCard
+                  card={card}
+                  onEdit={(cardData, mode) => handleEdit(cardData, mode)}
+                  onDelete={deleteCard}
+                  onMenu={(e) => handleCardContextMenu(e, card)}
+                />
+              </div>
             ))}
           </div>
           <div className="flex justify-center mt-6 gap-2">
@@ -310,7 +267,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
           </div>
         </>
       )}
-
       {/* Create Card Modal (AI) */}
       {showCreateModal && (
         <CreateCardModal
@@ -322,7 +278,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
           mode={createMode}
         />
       )}
-
       {/* Manual Editor Modal */}
       {showManualEditor && (
         <ManualEditorModal
@@ -333,7 +288,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
           editingCard={editingCard}
         />
       )}
-
       {/* Mass Generate Modal */}
       {showMassGenerateModal && (
         <MassGenerateModal
@@ -342,7 +296,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
           currentSpecialty={specialty}
         />
       )}
-
       {/* Context Menu */}
       {contextMenu && (
         <ContextMenu
@@ -352,7 +305,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
           onClose={() => setContextMenu(null)}
         />
       )}
-
     </div>
   );
 }
