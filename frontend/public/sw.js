@@ -49,6 +49,10 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
+        // Skip unsupported schemes (chrome-extension, etc.)
+        if (event.request.url.startsWith('chrome-extension://')) {
+          return response;
+        }
         // Only cache successful responses
         if (!response || response.status !== 200 || response.type === 'error') {
           return response;
