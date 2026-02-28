@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import TrashModal from './TrashModal';
+import CustomizationModal from './CustomizationModal';
 
 export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate, currentSpecialty, specialties, onAddSpecialty, onRenameSpecialty, onDeleteSpecialty, onUndoSpecialty }) {
   // Runtime guard to ensure settings is always defined
   if (!settings) settings = {};
   const [showTrash, setShowTrash] = useState(false);
+  const [showCustomization, setShowCustomization] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -131,9 +133,20 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
             </select>
           </div>
           <div className="mb-6">
-            <label className="block font-semibold mb-2">Save Theme/Profile</label>
-            <button className="btn-default w-full" onClick={() => onUpdate({ ...settings, saveTheme: true })}>Save Current Customization</button>
+            <button className="btn-gradient w-full" onClick={() => setShowCustomization(true)}>
+              Customize Appearance
+            </button>
           </div>
+          {showCustomization && (
+            <CustomizationModal
+              isOpen={showCustomization}
+              onClose={() => setShowCustomization(false)}
+              settings={settings}
+              onUpdate={onUpdate}
+              onReset={() => onUpdate({})}
+              onSaveTheme={theme => localStorage.setItem('userTheme', JSON.stringify(theme))}
+            />
+          )}
 
           <div className="space-y-4">
             {/* Specialty Management Section */}
