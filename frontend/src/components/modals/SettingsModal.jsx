@@ -51,6 +51,10 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
     setNewSpecialtyName('');
   };
 
+  const handleSaveTheme = () => {
+    onUpdate({ ...settings, saveTheme: true });
+  };
+
   return (
     <>
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -71,6 +75,11 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
               <option value="sans">Sans</option>
               <option value="serif">Serif</option>
               <option value="mono">Mono</option>
+              <option value="garamond">Garamond</option>
+              <option value="courier">Courier</option>
+              <option value="handwriting">Handwriting</option>
+              <option value="display">Display</option>
+              <option value="stylistic">Stylistic</option>
             </select>
           </div>
           <div className="mb-6">
@@ -80,6 +89,50 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
               <option value="green">Green</option>
               <option value="purple">Purple</option>
             </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Background</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, background: e.target.value })} value={settings?.background || 'solid'}>
+              <option value="solid">Solid</option>
+              <option value="gradient">Gradient</option>
+              <option value="pattern">Pattern</option>
+              <option value="image">Image</option>
+              <option value="highlight">Highlight</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Card Background</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, cardBackground: e.target.value })} value={settings?.cardBackground || 'bg-custom-solid'}>
+              <option value="bg-custom-solid">Solid</option>
+              <option value="bg-custom-gradient">Gradient</option>
+              <option value="bg-custom-pattern">Pattern</option>
+              <option value="bg-custom-image">Image</option>
+              <option value="bg-custom-highlight">Highlight</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Text Color</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, textColor: e.target.value })} value={settings?.textColor || 'text-gray-900'}>
+              <option value="text-gray-900">Default</option>
+              <option value="text-blue-700">Blue</option>
+              <option value="text-green-700">Green</option>
+              <option value="text-purple-700">Purple</option>
+              <option value="text-red-700">Red</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Button Style</label>
+            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, buttonStyle: e.target.value })} value={settings?.buttonStyle || 'btn-default'}>
+              <option value="btn-default">Default</option>
+              <option value="btn-rounded">Rounded</option>
+              <option value="btn-outline">Outline</option>
+              <option value="btn-solid">Solid</option>
+              <option value="btn-gradient">Gradient</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block font-semibold mb-2">Save Theme/Profile</label>
+            <button className="btn-default w-full" onClick={() => onUpdate({ ...settings, saveTheme: true })}>Save Current Customization</button>
           </div>
 
           <div className="space-y-4">

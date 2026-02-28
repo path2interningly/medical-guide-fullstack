@@ -69,6 +69,24 @@
   background-color: var(--accent);
   background-image: url('https://www.transparenttextures.com/patterns/fabric-of-squares.png');
 }
+/* Customization backgrounds */
+.bg-custom-solid {
+  background: #f9fafb;
+}
+.bg-custom-gradient {
+  background: linear-gradient(90deg, #7c3aed, #059669, #2563eb, #f9fafb);
+}
+.bg-custom-pattern {
+  background-image: repeating-linear-gradient(45deg, #e0e7ff, #e0e7ff 10px, #f9fafb 10px, #f9fafb 20px);
+}
+.bg-custom-image {
+  background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80');
+  background-size: cover;
+  background-position: center;
+}
+.bg-custom-highlight {
+  background: #fef3c7;
+}
 /* Theme classes */
 .theme-light {
   background-color: #f9fafb;
@@ -88,6 +106,21 @@
 }
 .font-mono {
   font-family: 'Fira Mono', 'Menlo', 'Monaco', monospace;
+}
+.font-garamond {
+  font-family: 'Garamond', 'Georgia', serif;
+}
+.font-courier {
+  font-family: 'Courier New', 'Courier', monospace;
+}
+.font-handwriting {
+  font-family: 'Comic Sans MS', 'Caveat', cursive;
+}
+.font-display {
+  font-family: 'Oswald', 'Impact', sans-serif;
+}
+.font-stylistic {
+  font-family: 'Playfair Display', 'Garamond', serif;
 }
 
 /* Accent color classes */
