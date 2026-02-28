@@ -1,31 +1,3 @@
-          <div className="mb-6">
-            <label className="block font-semibold mb-2">Background Style</label>
-            <select className="w-full p-2 rounded border mb-2" onChange={e => onUpdate({ ...settings, backgroundStyle: e.target.value })} value={settings?.backgroundStyle || 'bg-solid'}>
-              <option value="bg-solid">Solid</option>
-              <option value="bg-gradient-ombre">Ombre Gradient</option>
-              <option value="bg-gradient-dark">Dark Gradient</option>
-              <option value="bg-animated-gradient">Animated Gradient</option>
-              <option value="bg-pattern-dots">Dots Pattern</option>
-              <option value="bg-pattern-stripes">Stripes Pattern</option>
-              <option value="bg-texture-paper">Paper Texture</option>
-              <option value="bg-texture-fabric">Fabric Texture</option>
-              <option value="bg-custom-image">Custom Image</option>
-            </select>
-            {settings?.backgroundStyle === 'bg-custom-image' && (
-              <input
-                type="text"
-                className="w-full p-2 rounded border mt-2"
-                placeholder="Enter image URL..."
-                value={settings?.backgroundImage || ''}
-                onChange={e => onUpdate({ ...settings, backgroundImage: e.target.value })}
-              />
-            )}
-            {/* Preview */}
-            <div className={`mt-4 h-16 w-full rounded border ${settings?.backgroundStyle || 'bg-solid'}`}
-              style={settings?.backgroundStyle === 'bg-custom-image' && settings?.backgroundImage ? { backgroundImage: `url(${settings.backgroundImage})` } : {}}>
-              <span className="block text-xs text-gray-700 text-center pt-5">Preview</span>
-            </div>
-          </div>
 import { useState } from 'react';
 import TrashModal from './TrashModal';
 
