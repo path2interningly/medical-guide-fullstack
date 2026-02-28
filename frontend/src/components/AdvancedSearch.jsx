@@ -79,22 +79,22 @@ export default function AdvancedSearch({ onFilter, cards }) {
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <div className="flex flex-col gap-4">
         <div>
-          <label htmlFor="searchFilter" className="text-sm font-semibold text-gray-700 block mb-2">🔎 Search & Filter</label>
+          <label htmlFor="searchFilter" className="text-sm font-semibold text-gray-700 block mb-2">{t('search_filter')}</label>
           <select
             id="searchFilter"
             value={sortBy}
             onChange={e => setSortBy(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
           >
-            <option value="title">Title (A-Z)</option>
-            <option value="date">Date Added</option>
-            <option value="ai">AI First</option>
-            <option value="favorites">Favorites Only</option>
-            <option value="ai-generated">AI Generated</option>
-            <option value="manual">Manual</option>
-            <option value="tags">Tags</option>
-            <option value="specialty">Specialty</option>
-            <option value="tabs">Tabs</option>
+            <option value="title">{t('sort_title')}</option>
+            <option value="date">{t('sort_date')}</option>
+            <option value="ai">{t('sort_ai_first')}</option>
+            <option value="favorites">{t('sort_favorites')}</option>
+            <option value="ai-generated">{t('sort_ai_generated')}</option>
+            <option value="manual">{t('sort_manual')}</option>
+            <option value="tags">{t('sort_tags')}</option>
+            <option value="specialty">{t('sort_specialty')}</option>
+            <option value="tabs">{t('sort_tabs')}</option>
           </select>
           <input
             type="text"
