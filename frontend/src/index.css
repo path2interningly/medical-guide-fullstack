@@ -1,8 +1,4 @@
-/*
- NOTE: Tailwind CSS and @apply rules are processed by PostCSS during build.
- For Vercel/Render, ensure postcss.config.cjs and tailwind.config.js are present.
- Do not remove @tailwind or @apply rules—they are required for production styling.
- */
+/* NOTE: Tailwind CSS and @apply rules are processed by PostCSS during build. For Vercel/Render, ensure postcss.config.cjs and tailwind.config.js are present. Do not remove @tailwind or @apply rules—they are required for production styling. */
 /* Animated gradient backgrounds */
 /* Polished animated gradient backgrounds */
 .bg-animated-gradient {
@@ -92,6 +88,30 @@
 }
 .font-mono {
   font-family: 'Fira Mono', 'Menlo', 'Monaco', monospace;
+}
+.font-roboto {
+  font-family: 'Roboto', 'Arial', sans-serif;
+}
+.font-lato {
+  font-family: 'Lato', 'Arial', sans-serif;
+}
+.font-oswald {
+  font-family: 'Oswald', 'Arial', sans-serif;
+}
+.font-merriweather {
+  font-family: 'Merriweather', 'Georgia', serif;
+}
+.font-quicksand {
+  font-family: 'Quicksand', 'Arial', sans-serif;
+}
+.font-ubuntu {
+  font-family: 'Ubuntu', 'Arial', sans-serif;
+}
+.font-courier {
+  font-family: 'Courier New', Courier, monospace;
+}
+.font-poppins {
+  font-family: 'Poppins', 'Arial', sans-serif;
 }
 
 /* Accent color classes */
