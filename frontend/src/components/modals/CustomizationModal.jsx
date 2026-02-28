@@ -12,10 +12,16 @@ const fontOptions = [
   { name: 'Roboto', class: 'font-roboto', style: { fontFamily: 'Roboto, Arial, sans-serif' } },
   { name: 'Lato', class: 'font-lato', style: { fontFamily: 'Lato, Arial, sans-serif' } },
   { name: 'Montserrat', class: 'font-montserrat', style: { fontFamily: 'Montserrat, Arial, sans-serif' } },
-  { name: 'Dyslexie', class: 'font-dyslexia', style: { fontFamily: 'OpenDyslexic, Arial, sans-serif' } },
   { name: 'Aptos', class: 'font-aptos', style: { fontFamily: 'Aptos, Calibri, Arial, sans-serif' } },
   { name: 'Times', class: 'font-times', style: { fontFamily: 'Times New Roman, Times, serif' } },
   { name: 'Menlo', class: 'font-menlo', style: { fontFamily: 'Menlo, Monaco, monospace' } },
+  { name: 'Pacifico', class: 'font-pacifico', style: { fontFamily: 'Pacifico, cursive' } },
+  { name: 'Dancing Script', class: 'font-dancing', style: { fontFamily: 'Dancing Script, cursive' } },
+  { name: 'Lobster', class: 'font-lobster', style: { fontFamily: 'Lobster, cursive' } },
+  { name: 'Amatic SC', class: 'font-amatic', style: { fontFamily: 'Amatic SC, cursive' } },
+  { name: 'Great Vibes', class: 'font-greatvibes', style: { fontFamily: 'Great Vibes, cursive' } },
+  { name: 'Parisienne', class: 'font-parisienne', style: { fontFamily: 'Parisienne, cursive' } },
+  { name: 'Satisfy', class: 'font-satisfy', style: { fontFamily: 'Satisfy, cursive' } },
 ];
 
 const accentPalettes = [
@@ -41,7 +47,6 @@ const categories = [
   { key: 'accent', label: 'Accent', gradient: 'from-blue-400 to-green-400' },
   { key: 'background', label: 'Background', gradient: 'from-yellow-400 to-orange-400' },
   { key: 'button', label: 'Button', gradient: 'from-purple-400 to-pink-400' },
-  { key: 'accessibility', label: 'Accessibility', gradient: 'from-gray-400 to-blue-400' },
 ];
 
 export default function CustomizationModal({ isOpen, onClose, settings, onUpdate, onReset, onSaveTheme }) {
