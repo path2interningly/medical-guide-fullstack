@@ -1,4 +1,5 @@
 ﻿import { useEffect, useRef, useState } from 'react';
+import AdvancedSearch from '../components/AdvancedSearch.jsx';
 import { useCards } from '../context/CardsContext';
 import MedicalCard from '../components/cards/MedicalCard';
 import CreateCardModal from '../components/modals/CreateCardModal';
