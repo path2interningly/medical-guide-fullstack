@@ -41,45 +41,13 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - Network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  // Only handle GET requests
+  if (event.request.method !== 'GET') return;
 
-  // Cache API responses for offline reliability
-  if (event.request.url.includes('/api/') && event.request.method === 'GET') {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request)
-          .then((response) => {
-            if (!response || response.status !== 200) {
-              return response;
-            }
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-            return response;
-          })
-          .catch(() => {
-            return new Response('Offline: API data unavailable', {
-              status: 503,
-              statusText: 'Offline API'
-            });
-          });
-      })
-    );
-    return;
-  }
-
-  // Network first, fallback to cache
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Skip unsupported schemes (chrome-extension, etc.)
+        // Skip unsupported schemes
         if (event.request.url.startsWith('chrome-extension://')) {
           return response;
         }
@@ -87,12 +55,18 @@ self.addEventListener('fetch', (event) => {
         if (!response || response.status !== 200 || response.type === 'error') {
           return response;
         }
-        // Clone the response
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME)
-          .then((cache) => {
+        // Cache API responses and other GET requests
+        if (event.request.url.includes('/api/')) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
+        } else {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
         return response;
       })
       .catch(() => {
