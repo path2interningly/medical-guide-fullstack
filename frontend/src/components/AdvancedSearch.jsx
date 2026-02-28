@@ -5,6 +5,13 @@ import { fuzzyFilter } from '../utils/fuzzyFilter';
  * AdvancedSearch - Filter cards by multiple criteria
  */
 export default function AdvancedSearch({ onFilter, cards }) {
+    // Active filter chips
+    const filterChips = [];
+    if (filterFavorites) filterChips.push({ label: 'Favorites', key: 'favorites' });
+    if (filterAIGenerated !== null) filterChips.push({ label: filterAIGenerated ? 'AI Generated' : 'Manual', key: 'source' });
+    if (selectedTags.length) filterChips.push(...selectedTags.map(tag => ({ label: tag, key: 'tag' })));
+    if (selectedTabs.length) filterChips.push(...selectedTabs.map(tab => ({ label: tab, key: 'tab' })));
+    if (selectedSpecialty) filterChips.push({ label: selectedSpecialty, key: 'specialty' });
   const [searchText, setSearchText] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [filterAIGenerated, setFilterAIGenerated] = useState(null);
@@ -77,6 +84,27 @@ export default function AdvancedSearch({ onFilter, cards }) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
+      {/* Active filter chips */}
+      {filterChips.length > 0 && (
+        <div className="mb-2 flex flex-wrap gap-2">
+          {filterChips.map((chip, idx) => (
+            <span key={idx} className="filter-chip px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center gap-1">
+              {chip.label}
+              <button
+                className="ml-1 text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  if (chip.key === 'favorites') setFilterFavorites(false);
+                  if (chip.key === 'source') setFilterAIGenerated(null);
+                  if (chip.key === 'tag') setSelectedTags(selectedTags.filter(t => t !== chip.label));
+                  if (chip.key === 'tab') setSelectedTabs(selectedTabs.filter(t => t !== chip.label));
+                  if (chip.key === 'specialty') setSelectedSpecialty('');
+                }}
+                aria-label={`Remove ${chip.label} filter`}
+              >✕</button>
+            </span>
+          ))}
+        </div>
+      )}
       {/* Tab Filter */}
       {allTabs.length > 0 && (
         <div>
@@ -111,15 +139,13 @@ export default function AdvancedSearch({ onFilter, cards }) {
         </div>
       )}
       {/* Favorites Filter */}
-      <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">⭐ Favorites</label>
-        <input
-          type="checkbox"
-          checked={filterFavorites}
-          onChange={e => setFilterFavorites(e.target.checked)}
-          className="mr-2"
-        />
-        Show only favorites
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-semibold text-gray-700">⭐ Favorites</label>
+        <button
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${filterFavorites ? 'bg-yellow-400 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          onClick={() => setFilterFavorites(!filterFavorites)}
+          aria-pressed={filterFavorites}
+        >{filterFavorites ? 'Active' : 'Show only favorites'}</button>
       </div>
       {/* Search Input */}
       <div>
@@ -156,30 +182,18 @@ export default function AdvancedSearch({ onFilter, cards }) {
       )}
 
       {/* AI Generated Filter */}
-      <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">✨ Source</label>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setFilterAIGenerated(filterAIGenerated === true ? null : true)}
-            className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-              filterAIGenerated === true
-                ? 'bg-purple-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            AI Generated
-          </button>
-          <button
-            onClick={() => setFilterAIGenerated(filterAIGenerated === false ? null : false)}
-            className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-              filterAIGenerated === false
-                ? 'bg-green-500 text-white shadow-md'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Manual
-          </button>
-        </div>
+      <div className="flex items-center gap-2">
+        <label className="text-sm font-semibold text-gray-700">✨ Source</label>
+        <button
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterAIGenerated === true ? 'bg-purple-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          onClick={() => setFilterAIGenerated(filterAIGenerated === true ? null : true)}
+          aria-pressed={filterAIGenerated === true}
+        >AI Generated</button>
+        <button
+          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterAIGenerated === false ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          onClick={() => setFilterAIGenerated(filterAIGenerated === false ? null : false)}
+          aria-pressed={filterAIGenerated === false}
+        >Manual</button>
       </div>
 
       {/* Sort */}
