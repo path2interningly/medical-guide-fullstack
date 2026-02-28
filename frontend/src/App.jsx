@@ -61,13 +61,19 @@ function AppContent() {
 
   // Apply theme, font, and color to body
   useEffect(() => {
-    document.body.classList.remove('theme-light', 'theme-dark', 'font-sans', 'font-serif', 'font-mono', 'accent-blue', 'accent-green', 'accent-purple');
+    document.body.classList.remove(
+      'theme-light', 'theme-dark',
+      'font-sans', 'font-serif', 'font-mono', 'font-roboto', 'font-lato', 'font-oswald', 'font-merriweather', 'font-quicksand', 'font-ubuntu', 'font-courier', 'font-poppins',
+      'accent-blue', 'accent-green', 'accent-purple', 'accent-red', 'accent-yellow', 'accent-pink', 'accent-orange', 'accent-teal', 'accent-gray', 'accent-cyan',
+      'bg-solid', 'bg-gradient-ombre', 'bg-gradient-dark', 'bg-pattern-dots', 'bg-pattern-stripes', 'bg-texture-paper', 'bg-texture-fabric', 'bg-pattern-grid', 'bg-pattern-chevron', 'bg-pattern-wave', 'bg-pattern-cross'
+    );
     document.body.classList.add(
       `theme-${settings.theme || 'light'}`,
       `font-${settings.font || 'sans'}`,
-      `accent-${settings.color || 'blue'}`
+      `accent-${settings.color || 'blue'}`,
+      `bg-${settings.pattern || 'solid'}`
     );
-  }, [settings.theme, settings.font, settings.color]);
+  }, [settings.theme, settings.font, settings.color, settings.pattern]);
 
   // Show auth modal if not authenticated
   useEffect(() => {
