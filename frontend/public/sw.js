@@ -75,24 +75,44 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip unsupported schemes (chrome-extension, etc.)
-  if (event.request.url.startsWith('chrome-extension://')) {
-    return response;
-  }
-
-  // Only cache successful responses
-  if (!response || response.status !== 200 || response.type === 'error') {
-    return response;
-  }
-
-  // Clone the response
-  const responseToCache = response.clone();
-  caches.open(CACHE_NAME)
-    .then((cache) => {
-      cache.put(event.request, responseToCache);
-    });
-
-  return response;
+  // Network first, fallback to cache
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Skip unsupported schemes (chrome-extension, etc.)
+        if (event.request.url.startsWith('chrome-extension://')) {
+          return response;
+        }
+        // Only cache successful responses
+        if (!response || response.status !== 200 || response.type === 'error') {
+          return response;
+        }
+        // Clone the response
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        return response;
+      })
+      .catch(() => {
+        // Try to return from cache
+        return caches.match(event.request)
+          .then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Return offline page or empty response
+            if (event.request.destination === 'document') {
+              return caches.match('/index.html');
+            }
+            return new Response('Network error occurred', {
+              status: 408,
+              statusText: 'Request Timeout'
+            });
+          });
+      })
+  );
 });
 
 // Background sync for offline actions
