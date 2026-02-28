@@ -93,6 +93,7 @@ export default function SectionView({ specialty, section, showContextHints }) {
 
   const handleEdit = (card, mode = 'manual') => {
     setEditingCard(card);
+    const [moveCardModal, setMoveCardModal] = useState({ open: false, card: null });
     if (mode === 'manual') {
       setShowManualEditor(true);
     } else {
@@ -205,12 +206,53 @@ export default function SectionView({ specialty, section, showContextHints }) {
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
               Export PDF
             </span>
+          {
+            label: '🔀 Move Card',
+            action: () => setMoveCardModal({ open: true, card })
+          }
           </button>
         </div>
       </div>
       {/* AdvancedSearch for filtering and sorting */}
       <div className="mb-6">
         <AdvancedSearch
+        {/* Move Card Modal */}
+        {moveCardModal.open && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-96">
+              <h2 className="text-lg font-bold mb-4">Move Card to Tab(s)</h2>
+              <div className="mb-4">
+                <div className="text-sm mb-2">Select tabs for this card:</div>
+                <div className="flex flex-wrap gap-2">
+                  {Object.keys(sectionTitles).concat('unclassified').map((key) => (
+                    <button
+                      key={key}
+                      className={`px-2 py-1 rounded-full border ${moveCardModal.card.section?.includes(key) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
+                      onClick={() => {
+                        let newTabs = moveCardModal.card.section ? [...moveCardModal.card.section] : [];
+                        if (newTabs.includes(key)) {
+                          newTabs = newTabs.filter(t => t !== key);
+                        } else {
+                          newTabs.push(key);
+                        }
+                        setMoveCardModal({ ...moveCardModal, card: { ...moveCardModal.card, section: newTabs } });
+                      }}
+                    >
+                      {sectionTitles[key] || 'Unclassified'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setMoveCardModal({ open: false, card: null })}>Cancel</button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => {
+                  updateCard(moveCardModal.card.id, { section: moveCardModal.card.section });
+                  setMoveCardModal({ open: false, card: null });
+                }}>Confirm</button>
+              </div>
+            </div>
+          </div>
+        )}
           cards={sectionCards}
           onFilter={(results) => {
             setFilteredCards(results);
