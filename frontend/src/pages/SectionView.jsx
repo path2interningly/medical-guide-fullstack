@@ -147,6 +147,10 @@ export default function SectionView({ specialty, section, showContextHints }) {
         {
           label: '🗑️ Delete',
           action: () => deleteCard(card.id)
+        },
+        {
+          label: '🔀 Move Card',
+          action: () => setMoveCardModal({ open: true, card })
         }
       ]
     });
@@ -206,18 +210,21 @@ export default function SectionView({ specialty, section, showContextHints }) {
             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none">
               Export PDF
             </span>
-          {
-            label: '🔀 Move Card',
-            action: () => setMoveCardModal({ open: true, card })
-          }
           </button>
         </div>
       </div>
       {/* AdvancedSearch for filtering and sorting */}
       <div className="mb-6">
         <AdvancedSearch
-        {/* Move Card Modal */}
-        {moveCardModal.open && (
+          cards={sectionCards}
+          onFilter={(results) => {
+            setFilteredCards(results);
+            setPage(1);
+          }}
+        />
+      </div>
+      {/* Move Card Modal */}
+      {moveCardModal.open && (
           <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-96">
               <h2 className="text-lg font-bold mb-4">Move Card to Tab(s)</h2>
@@ -246,20 +253,13 @@ export default function SectionView({ specialty, section, showContextHints }) {
               <div className="flex gap-2 justify-end">
                 <button className="px-4 py-2 bg-gray-300 rounded" onClick={() => setMoveCardModal({ open: false, card: null })}>Cancel</button>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => {
-                  updateCard(moveCardModal.card.id, { section: moveCardModal.card.section });
-                  setMoveCardModal({ open: false, card: null });
-                }}>Confirm</button>
+          updateCard(moveCardModal.card.id, { section: moveCardModal.card.section });
+          setMoveCardModal({ open: false, card: null });
+        }}>Confirm</button>
               </div>
             </div>
           </div>
         )}
-          cards={sectionCards}
-          onFilter={(results) => {
-            setFilteredCards(results);
-            setPage(1);
-          }}
-        />
-      </div>
       {displayCards.length === 0 ? (
         <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <div className="text-6xl mb-4"></div>

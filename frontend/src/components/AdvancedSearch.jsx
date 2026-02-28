@@ -26,30 +26,30 @@ export default function AdvancedSearch({ onFilter, cards }) {
 
   const handleFilter = () => {
     let filtered = cards;
-    // Fuzzy search
+    // Fuzzy search (applied first, if present)
     if (searchText.trim()) {
       filtered = fuzzyFilter(filtered, searchText);
     }
-    // Tab filter
+    // Discrete tab filter
     if (selectedTabs.length > 0) {
       filtered = filtered.filter(card => {
         const cardTabs = Array.isArray(card.section) ? card.section : [card.section];
-        return selectedTabs.some(tab => cardTabs.includes(tab));
+        return selectedTabs.every(tab => cardTabs.includes(tab));
       });
     }
-    // Tag filter
+    // Discrete tag filter
     if (selectedTags.length > 0) {
-      filtered = filtered.filter(card => selectedTags.some(tag => card.tags?.includes(tag)));
+      filtered = filtered.filter(card => selectedTags.every(tag => card.tags?.includes(tag)));
     }
-    // AI filter
+    // Discrete AI filter
     if (filterAIGenerated !== null) {
       filtered = filtered.filter(card => card.aiGenerated === filterAIGenerated);
     }
-    // Favorites filter
+    // Discrete favorites filter
     if (filterFavorites) {
       filtered = filtered.filter(card => card.isFavorite);
     }
-    // Specialty filter
+    // Discrete specialty filter
     if (selectedSpecialty) {
       filtered = filtered.filter(card => card.specialty === selectedSpecialty);
     }

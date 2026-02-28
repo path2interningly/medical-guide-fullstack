@@ -13,6 +13,7 @@
     "@tinymce/tinymce-react": "^5.1.1",
     "axios": "^1.6.5",
     "bcryptjs": "^3.0.3",
+    "fuse.js": "^7.1.0",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.0",
     "jspdf": "^4.1.0",
