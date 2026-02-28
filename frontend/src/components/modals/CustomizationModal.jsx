@@ -98,29 +98,32 @@ export default function CustomizationModal({ isOpen, onClose, settings, onUpdate
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-2xl p-0 flex max-w-3xl w-full h-[600px]">
+      <div className="rounded-lg shadow-2xl p-0 flex max-w-3xl w-full h-[600px]" style={{ background: 'var(--palette-color1)', color: 'var(--palette-color2)', fontFamily: 'var(--custom-font, inherit)' }}>
         {/* Sidebar Tabs */}
         <div className="flex flex-col w-40 h-full p-4 gap-2 border-r bg-gradient-to-b from-gray-50 to-gray-200">
           {categories.map(cat => (
             <button
               key={cat.key}
-              className={`w-full py-2 px-3 rounded-lg font-semibold text-left bg-gradient-to-r ${cat.gradient} ${activeCategory === cat.key ? 'ring-2 ring-blue-400' : ''}`}
+              className={`w-full py-2 px-3 rounded-lg font-semibold text-left`}
+              style={{ background: 'var(--palette-color3)', color: 'var(--palette-color4)', fontFamily: 'var(--custom-font, inherit)', boxShadow: activeCategory === cat.key ? '0 0 0 2px var(--palette-color5)' : 'none' }}
               onClick={() => setActiveCategory(cat.key)}
             >
               {cat.label}
             </button>
           ))}
-          <button className="mt-8 py-2 px-3 rounded-lg font-semibold bg-red-100 text-red-700" onClick={handleReset}>Reset to Default</button>
+          <button className="mt-8 py-2 px-3 rounded-lg font-semibold" style={{ background: 'var(--palette-color6)', color: 'var(--palette-color7)', fontFamily: 'var(--custom-font, inherit)' }} onClick={handleReset}>Reset to Default</button>
         </div>
         {/* Main Customization Area */}
         <div className="flex-1 p-8 overflow-y-auto">
           {/* Live Preview */}
           <div className="mb-6">
-            <div className="rounded-lg shadow p-4" style={{ background: previewSettings.background || '#f9fafb' }}>
-              <span style={{ color: previewSettings.textColor || '#1e293b', fontFamily: fontOptions.find(f => f.class === previewSettings.font)?.style.fontFamily || 'Inter' }}>
-                Live Preview: The quick brown fox jumps over the lazy dog.
+            <div className="rounded-lg shadow p-4" style={{ background: 'var(--palette-color8)', color: 'var(--palette-color9)', fontFamily: 'var(--custom-font, inherit)' }}>
+              <span style={{ color: 'var(--palette-color10)', fontFamily: 'var(--custom-font, inherit)', fontSize: '1.25rem', fontWeight: 600 }}>
+                Med in a Pocket
               </span>
-              <button className={previewSettings.buttonStyle || 'btn-default'} style={{ marginLeft: 16 }}>Button</button>
+              <button style={{ marginLeft: 16, background: 'var(--palette-color11)', color: 'var(--palette-color12)', fontFamily: 'var(--custom-font, inherit)', borderRadius: '8px', padding: '0.5rem 1rem', border: 'none', fontWeight: 500 }}>
+                Sample Button
+              </button>
             </div>
           </div>
           {/* Category Controls */}
