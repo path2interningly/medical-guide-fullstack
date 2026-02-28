@@ -5,13 +5,6 @@ import { fuzzyFilter } from '../utils/fuzzyFilter';
  * AdvancedSearch - Filter cards by multiple criteria
  */
 export default function AdvancedSearch({ onFilter, cards }) {
-    // Active filter chips
-    const filterChips = [];
-    if (filterFavorites) filterChips.push({ label: 'Favorites', key: 'favorites' });
-    if (filterAIGenerated !== null) filterChips.push({ label: filterAIGenerated ? 'AI Generated' : 'Manual', key: 'source' });
-    if (selectedTags.length) filterChips.push(...selectedTags.map(tag => ({ label: tag, key: 'tag' })));
-    if (selectedTabs.length) filterChips.push(...selectedTabs.map(tab => ({ label: tab, key: 'tab' })));
-    if (selectedSpecialty) filterChips.push({ label: selectedSpecialty, key: 'specialty' });
   const [searchText, setSearchText] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [filterAIGenerated, setFilterAIGenerated] = useState(null);
@@ -83,133 +76,141 @@ export default function AdvancedSearch({ onFilter, cards }) {
   const activeFilters = selectedTags.length + (filterAIGenerated !== null ? 1 : 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
-      {/* Active filter chips */}
-      {filterChips.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-2">
-          {filterChips.map((chip, idx) => (
-            <span key={idx} className="filter-chip px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center gap-1">
-              {chip.label}
-              <button
-                className="ml-1 text-blue-500 hover:text-blue-700"
-                onClick={() => {
-                  if (chip.key === 'favorites') setFilterFavorites(false);
-                  if (chip.key === 'source') setFilterAIGenerated(null);
-                  if (chip.key === 'tag') setSelectedTags(selectedTags.filter(t => t !== chip.label));
-                  if (chip.key === 'tab') setSelectedTabs(selectedTabs.filter(t => t !== chip.label));
-                  if (chip.key === 'specialty') setSelectedSpecialty('');
-                }}
-                aria-label={`Remove ${chip.label} filter`}
-              >✕</button>
-            </span>
-          ))}
-        </div>
-      )}
-      {/* Tab Filter */}
-      {allTabs.length > 0 && (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-6">
+      {/* Filter Group: Favorites & Source */}
+      <div className="flex flex-wrap gap-8 items-end mb-4">
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">🗂️ Tabs ({selectedTabs.length})</label>
-          <div className="flex flex-wrap gap-2">
-            {allTabs.map(tab => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTabs(prev => prev.includes(tab) ? prev.filter(t => t !== tab) : [...prev, tab])}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selectedTabs.includes(tab) ? 'bg-blue-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                {tab}
-              </button>
-            ))}
+          <label className="text-sm font-semibold text-gray-700 block mb-2">⭐ Favorites</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={filterFavorites}
+              onChange={e => setFilterFavorites(e.target.checked)}
+              className="mr-2"
+            />
+            <span>Show only favorites</span>
           </div>
         </div>
-      )}
-      {/* Specialty Filter */}
-      {allSpecialties.length > 0 && (
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">🩺 Specialty</label>
-          <select
-            value={selectedSpecialty}
-            onChange={e => setSelectedSpecialty(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All</option>
-            {allSpecialties.map(spec => (
-              <option key={spec} value={spec}>{spec}</option>
-            ))}
-          </select>
-        </div>
-      )}
-      {/* Favorites Filter */}
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-semibold text-gray-700">⭐ Favorites</label>
-        <button
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${filterFavorites ? 'bg-yellow-400 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-          onClick={() => setFilterFavorites(!filterFavorites)}
-          aria-pressed={filterFavorites}
-        >{filterFavorites ? 'Active' : 'Show only favorites'}</button>
-      </div>
-      {/* Search Input */}
-      <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">🔍 Search</label>
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search by title or content..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Tags Filter */}
-      {allTags.length > 0 && (
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ Tags ({selectedTags.length})</label>
-          <div className="flex flex-wrap gap-2">
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => handleTagToggle(tag)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  selectedTags.includes(tag)
-                    ? 'bg-blue-500 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
+          <label className="text-sm font-semibold text-gray-700 block mb-2">✨ Source</label>
+          <div className="flex gap-2">
+            <button
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                filterAIGenerated === true
+                  ? 'bg-purple-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilterAIGenerated(true)}
+            >
+              AI Generated
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                filterAIGenerated === false
+                  ? 'bg-green-500 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilterAIGenerated(false)}
+            >
+              Manual
+            </button>
+            <button
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                filterAIGenerated === null
+                  ? 'bg-gray-300 text-gray-700 shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              onClick={() => setFilterAIGenerated(null)}
+            >
+              Any
+            </button>
           </div>
         </div>
-      )}
-
-      {/* AI Generated Filter */}
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-semibold text-gray-700">✨ Source</label>
-        <button
-          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterAIGenerated === true ? 'bg-purple-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-          onClick={() => setFilterAIGenerated(filterAIGenerated === true ? null : true)}
-          aria-pressed={filterAIGenerated === true}
-        >AI Generated</button>
-        <button
-          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${filterAIGenerated === false ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-          onClick={() => setFilterAIGenerated(filterAIGenerated === false ? null : false)}
-          aria-pressed={filterAIGenerated === false}
-        >Manual</button>
       </div>
-
-      {/* Sort */}
+      {/* Filter Group: Tabs & Specialty */}
+      <div className="flex flex-wrap gap-8 items-end mb-4">
+        {allTabs.length > 0 && (
+          <div>
+            <label className="text-sm font-semibold text-gray-700 block mb-2">🗂️ Tabs ({selectedTabs.length})</label>
+            <div className="flex flex-wrap gap-2">
+              {allTabs.map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedTabs(prev => prev.includes(tab) ? prev.filter(t => t !== tab) : [...prev, tab])}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    selectedTabs.includes(tab)
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {allSpecialties.length > 0 && (
+          <div>
+            <label className="text-sm font-semibold text-gray-700 block mb-2">🩺 Specialty</label>
+            <select
+              value={selectedSpecialty}
+              onChange={e => setSelectedSpecialty(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All</option>
+              {allSpecialties.map(spec => (
+                <option key={spec} value={spec}>{spec}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+      {/* Filter Group: Search & Tags */}
+      <div className="flex flex-wrap gap-8 items-end mb-4">
+        <div className="flex-1 min-w-[220px]">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">🔍 Search</label>
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search by title or content..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        {allTags.length > 0 && (
+          <div>
+            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ Tags ({selectedTags.length})</label>
+            <div className="flex flex-wrap gap-2">
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagToggle(tag)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    selectedTags.includes(tag)
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Sort By */}
       <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">↕️ Sort By</label>
+        <label className="text-sm font-semibold text-gray-700 block mb-2">🧩 Sort By</label>
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          onChange={e => setSortBy(e.target.value)}
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="title">Title (A-Z)</option>
-          <option value="date">Date (Newest)</option>
-          <option value="ai">AI Generated First</option>
+          <option value="date">Date Added</option>
+          <option value="ai">AI First</option>
         </select>
       </div>
-
       {/* Active Filters Display */}
       {activeFilters > 0 && (
         <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded-lg">
