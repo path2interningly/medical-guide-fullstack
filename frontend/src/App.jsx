@@ -226,15 +226,7 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto py-2">
             {currentSections.map((sectionId) => {
-              const sectionLabel = {
-                consultations: t('sections.consultations'),
-                prescriptions: t('sections.prescriptions'),
-                investigations: t('sections.investigations'),
-                procedures: t('sections.procedures'),
-                templates: t('sections.templates'),
-                calculators: t('sections.calculators'),
-                urgences: t('sections.urgences')
-              }[sectionId];
+              const sectionLabel = sectionId;
 
               return (
                 <button
