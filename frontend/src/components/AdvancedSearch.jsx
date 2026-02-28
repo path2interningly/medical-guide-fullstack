@@ -76,140 +76,34 @@ export default function AdvancedSearch({ onFilter, cards }) {
   const activeFilters = selectedTags.length + (filterAIGenerated !== null ? 1 : 0);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-6">
-      {/* Filter Group: Favorites & Source */}
-      <div className="flex flex-wrap gap-8 items-end mb-4">
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="flex flex-col gap-4">
         <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">⭐ Favorites</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={filterFavorites}
-              onChange={e => setFilterFavorites(e.target.checked)}
-              className="mr-2"
-            />
-            <span>Show only favorites</span>
-          </div>
-        </div>
-        <div>
-          <label className="text-sm font-semibold text-gray-700 block mb-2">✨ Source</label>
-          <div className="flex gap-2">
-            <button
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                filterAIGenerated === true
-                  ? 'bg-purple-500 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setFilterAIGenerated(true)}
-            >
-              AI Generated
-            </button>
-            <button
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                filterAIGenerated === false
-                  ? 'bg-green-500 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setFilterAIGenerated(false)}
-            >
-              Manual
-            </button>
-            <button
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                filterAIGenerated === null
-                  ? 'bg-gray-300 text-gray-700 shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setFilterAIGenerated(null)}
-            >
-              Any
-            </button>
-          </div>
-        </div>
-      </div>
-      {/* Filter Group: Tabs & Specialty */}
-      <div className="flex flex-wrap gap-8 items-end mb-4">
-        {allTabs.length > 0 && (
-          <div>
-            <label className="text-sm font-semibold text-gray-700 block mb-2">🗂️ Tabs ({selectedTabs.length})</label>
-            <div className="flex flex-wrap gap-2">
-              {allTabs.map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedTabs(prev => prev.includes(tab) ? prev.filter(t => t !== tab) : [...prev, tab])}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    selectedTabs.includes(tab)
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {allSpecialties.length > 0 && (
-          <div>
-            <label className="text-sm font-semibold text-gray-700 block mb-2">🩺 Specialty</label>
-            <select
-              value={selectedSpecialty}
-              onChange={e => setSelectedSpecialty(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All</option>
-              {allSpecialties.map(spec => (
-                <option key={spec} value={spec}>{spec}</option>
-              ))}
-            </select>
-          </div>
-        )}
-      </div>
-      {/* Filter Group: Search & Tags */}
-      <div className="flex flex-wrap gap-8 items-end mb-4">
-        <div className="flex-1 min-w-[220px]">
-          <label className="text-sm font-semibold text-gray-700 block mb-2">🔍 Search</label>
+          <label htmlFor="searchFilter" className="text-sm font-semibold text-gray-700 block mb-2">🔎 Search & Filter</label>
+          <select
+            id="searchFilter"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+          >
+            <option value="title">Title (A-Z)</option>
+            <option value="date">Date Added</option>
+            <option value="ai">AI First</option>
+            <option value="favorites">Favorites Only</option>
+            <option value="ai-generated">AI Generated</option>
+            <option value="manual">Manual</option>
+            <option value="tags">Tags</option>
+            <option value="specialty">Specialty</option>
+            <option value="tabs">Tabs</option>
+          </select>
           <input
             type="text"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={e => setSearchText(e.target.value)}
             placeholder="Search by title or content..."
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        {allTags.length > 0 && (
-          <div>
-            <label className="text-sm font-semibold text-gray-700 block mb-2">🏷️ Tags ({selectedTags.length})</label>
-            <div className="flex flex-wrap gap-2">
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => handleTagToggle(tag)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    selectedTags.includes(tag)
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-      {/* Sort By */}
-      <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-2">🧩 Sort By</label>
-        <select
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="title">Title (A-Z)</option>
-          <option value="date">Date Added</option>
-          <option value="ai">AI First</option>
-        </select>
       </div>
       {/* Active Filters Display */}
       {activeFilters > 0 && (
