@@ -22,6 +22,16 @@ const fontOptions = [
   { name: 'Great Vibes', class: 'font-greatvibes', style: { fontFamily: 'Great Vibes, cursive' } },
   { name: 'Parisienne', class: 'font-parisienne', style: { fontFamily: 'Parisienne, cursive' } },
   { name: 'Satisfy', class: 'font-satisfy', style: { fontFamily: 'Satisfy, cursive' } },
+  { name: 'California Poppy', class: 'font-california-poppy', style: { fontFamily: 'California Poppy, cursive' } },
+  { name: 'African Daisy', class: 'font-african-daisy', style: { fontFamily: 'African Daisy, cursive' } },
+  { name: 'Evening Primrose', class: 'font-evening-primrose', style: { fontFamily: 'Evening Primrose, cursive' } },
+  { name: 'Desert Rose', class: 'font-desert-rose', style: { fontFamily: 'Desert Rose, cursive' } },
+  { name: 'English Bluebell', class: 'font-english-bluebell', style: { fontFamily: 'English Bluebell, cursive' } },
+  { name: 'Coral Bells', class: 'font-coral-bells', style: { fontFamily: 'Coral Bells, cursive' } },
+  { name: 'French Marigold', class: 'font-french-marigold', style: { fontFamily: 'French Marigold, cursive' } },
+  { name: 'Grape Hyacinth', class: 'font-grape-hyacinth', style: { fontFamily: 'Grape Hyacinth, cursive' } },
+  { name: 'Dutch Iris', class: 'font-dutch-iris', style: { fontFamily: 'Dutch Iris, cursive' } },
+  { name: 'Kallir Lily', class: 'font-kallir-lily', style: { fontFamily: 'Kallir Lily, cursive' } },
 ];
 
 const accentPalettes = [
@@ -47,6 +57,22 @@ const categories = [
   { key: 'accent', label: 'Accent', gradient: 'from-blue-400 to-green-400' },
   { key: 'background', label: 'Background', gradient: 'from-yellow-400 to-orange-400' },
   { key: 'button', label: 'Button', gradient: 'from-purple-400 to-pink-400' },
+];
+
+const gradientPatterns = [
+  { name: 'Vertical', css: direction => `linear-gradient(180deg, ${direction})` },
+  { name: 'Horizontal', css: direction => `linear-gradient(90deg, ${direction})` },
+  { name: 'Diagonal', css: direction => `linear-gradient(45deg, ${direction})` },
+  { name: 'Radial', css: direction => `radial-gradient(circle, ${direction})` },
+  { name: 'Donut', css: direction => `radial-gradient(ellipse at center, ${direction})` },
+];
+
+const sampleImages = [
+  { name: 'Nature', url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Mountains', url: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Forest', url: 'https://images.unsplash.com/photo-1444065381814-865dc9da92c0?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Beach', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80' },
+  { name: 'City', url: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3c8b?auto=format&fit=crop&w=800&q=80' },
 ];
 
 export default function CustomizationModal({ isOpen, onClose, settings, onUpdate, onReset, onSaveTheme }) {
@@ -118,16 +144,14 @@ export default function CustomizationModal({ isOpen, onClose, settings, onUpdate
           {activeCategory === 'accent' && (
             <div>
               <h3 className="font-bold mb-2">Accent Palette</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {accentPalettes.map(pal => (
-                  <button
-                    key={pal.name}
-                    className={`w-full h-12 rounded-lg border ${previewSettings.accent === pal.name ? 'border-blue-500 ring-2 ring-blue-400' : 'border-gray-200'}`}
-                    style={{ background: `linear-gradient(90deg, ${pal.colors.join(', ')})` }}
-                    onClick={() => handleChange('accent', pal.name)}
-                  >
-                    <span className="font-semibold text-white drop-shadow" style={{ textShadow: '0 1px 2px #0006' }}>{pal.name}</span>
-                  </button>
+              <div className="grid grid-cols-2 gap-4">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="flex gap-1">
+                    {[0,1,2,3].map(j => (
+                      <input key={j} type="color" value={previewSettings[`accent${i}_${j}`] || '#ffffff'} onChange={e => handleChange(`accent${i}_${j}`, e.target.value)} className="w-8 h-8 border rounded" />
+                    ))}
+                    <button className="btn-outline ml-2" onClick={() => handleChange('accent', [`accent${i}_0`, `accent${i}_1`, `accent${i}_2`, `accent${i}_3`].map(k => previewSettings[k] || '#fff'))}>Apply</button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -135,12 +159,41 @@ export default function CustomizationModal({ isOpen, onClose, settings, onUpdate
           {activeCategory === 'background' && (
             <div>
               <h3 className="font-bold mb-2">Background</h3>
-              <div className="flex gap-2">
-                <button className="bg-custom-solid w-20 h-12 rounded border" onClick={() => handleChange('background', '#f9fafb')}></button>
-                <button className="bg-custom-gradient w-20 h-12 rounded border" onClick={() => handleChange('background', 'linear-gradient(90deg, #7c3aed, #059669, #2563eb, #f9fafb)')}></button>
-                <button className="bg-custom-pattern w-20 h-12 rounded border" onClick={() => handleChange('background', 'repeating-linear-gradient(45deg, #e0e7ff, #e0e7ff 10px, #f9fafb 10px, #f9fafb 20px)')}></button>
-                <button className="bg-custom-image w-20 h-12 rounded border" onClick={() => handleChange('background', 'url(https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80)')}></button>
-                <button className="bg-custom-highlight w-20 h-12 rounded border" onClick={() => handleChange('background', '#fef3c7')}></button>
+              <div className="mb-4">
+                <label className="block font-semibold mb-2">Gradient Pattern</label>
+                <div className="flex gap-2 mb-2">
+                  {gradientPatterns.map(pattern => (
+                    <button key={pattern.name} className="px-3 py-2 rounded border" onClick={() => handleChange('gradientPattern', pattern.name)}>
+                      {pattern.name}
+                    </button>
+                  ))}
+                </div>
+                <label className="block font-semibold mb-2">Gradient Colors</label>
+                <div className="flex gap-2 mb-2">
+                  {[0,1,2,3].map(i => (
+                    <input key={i} type="color" value={previewSettings[`gradientColor${i}`] || '#ffffff'} onChange={e => handleChange(`gradientColor${i}`, e.target.value)} className="w-10 h-10 border rounded" />
+                  ))}
+                </div>
+                <button className="btn-outline mb-4" onClick={() => handleChange('background', gradientPatterns.find(p => p.name === previewSettings.gradientPattern)?.css([0,1,2,3].map(i => previewSettings[`gradientColor${i}`] || '#fff').join(', ')))}>
+                  Apply Gradient
+                </button>
+              </div>
+              <div className="mb-4">
+                <label className="block font-semibold mb-2">Sample Images</label>
+                <div className="flex gap-2 mb-2">
+                  {sampleImages.map(img => (
+                    <button key={img.name} className="w-20 h-12 rounded border bg-cover bg-center" style={{ backgroundImage: `url(${img.url})` }} onClick={() => handleChange('background', `url(${img.url})`)}></button>
+                  ))}
+                </div>
+                <label className="block font-semibold mb-2">Upload Image</label>
+                <input type="file" accept="image/*" onChange={e => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ev => handleChange('background', `url(${ev.target.result})`);
+                    reader.readAsDataURL(file);
+                  }
+                }} />
               </div>
             </div>
           )}
