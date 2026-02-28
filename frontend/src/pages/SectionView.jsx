@@ -15,13 +15,13 @@ export default function SectionView({ specialty, section, showContextHints }) {
   const pageSize = 12;
 
   const sectionTitles = {
-    consultations: t('sections.consultations'),
-    prescriptions: t('sections.prescriptions'),
-    investigations: t('sections.investigations'),
-    procedures: t('sections.procedures'),
-    templates: t('sections.templates'),
-    calculators: t('sections.calculators'),
-    urgences: t('sections.urgences')
+    consultations: 'Consultations by Symptom',
+    prescriptions: 'Prescriptions & Orders',
+    investigations: 'Investigations & Interpretations',
+    procedures: 'Technical Procedures',
+    templates: 'Templates & Forms',
+    calculators: 'Calculators & Scores',
+    urgences: 'Emergencies & Algorithms'
   };
 
   const { getCardsBySection, addCard, updateCard, deleteCard, searchCards, getFavoriteCards } = useCards();
@@ -72,7 +72,7 @@ export default function SectionView({ specialty, section, showContextHints }) {
   let pageTitle = sectionTitles[section];
   if (viewMode === 'favorites') {
     displayCards = favoriteCards;
-    pageTitle = t('favorites');
+    pageTitle = 'Favorites';
   }
 
   // Apply sorting
@@ -138,15 +138,15 @@ export default function SectionView({ specialty, section, showContextHints }) {
       y: e.clientY,
       items: [
         {
-          label: t('copy'),
+          label: '📋 Copy',
           action: () => handleCopy()
         },
         {
-          label: t('edit'),
+          label: '✏️ Edit',
           action: () => handleEdit(card, 'manual')
         },
         {
-          label: t('delete'),
+          label: '🗑️ Delete',
           action: () => deleteCard(card.id)
         },
         {
@@ -228,9 +228,9 @@ export default function SectionView({ specialty, section, showContextHints }) {
       {moveCardModal.open && (
           <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-96">
-              <h2 className="text-lg font-bold mb-4">{t('move_card_to_tabs')}</h2>
+              <h2 className="text-lg font-bold mb-4">Move Card to Tab(s)</h2>
               <div className="mb-4">
-                <div className="text-sm mb-2">{t('select_tabs_for_card')}</div>
+                <div className="text-sm mb-2">Select tabs for this card:</div>
                 <div className="flex flex-wrap gap-2">
                   {Object.keys(sectionTitles).concat('unclassified').map((key) => (
                     <button
@@ -265,11 +265,11 @@ export default function SectionView({ specialty, section, showContextHints }) {
         <div className="text-center py-16 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
           <div className="text-6xl mb-4"></div>
           <p className="text-gray-500 text-xl mb-2 font-semibold">
-            {viewMode === 'search' ? t('no_results') : t('no_content')}
+            {viewMode === 'search' ? 'No results' : 'No content'}
           </p>
           <p className="text-gray-400 text-sm">
             {viewMode === 'search' 
-              ? t('try_search')
+              ? 'Try another search'
               : 'Click + Create Card to add your first entry'}
           </p>
         </div>

@@ -61,19 +61,13 @@ function AppContent() {
 
   // Apply theme, font, and color to body
   useEffect(() => {
-    document.body.classList.remove(
-      'theme-light', 'theme-dark',
-      'font-sans', 'font-serif', 'font-mono', 'font-roboto', 'font-lato', 'font-oswald', 'font-merriweather', 'font-quicksand', 'font-ubuntu', 'font-courier', 'font-poppins',
-      'accent-blue', 'accent-green', 'accent-purple', 'accent-red', 'accent-yellow', 'accent-pink', 'accent-orange', 'accent-teal', 'accent-gray', 'accent-cyan',
-      'bg-solid', 'bg-gradient-ombre', 'bg-gradient-dark', 'bg-pattern-dots', 'bg-pattern-stripes', 'bg-texture-paper', 'bg-texture-fabric', 'bg-pattern-grid', 'bg-pattern-chevron', 'bg-pattern-wave', 'bg-pattern-cross'
-    );
+    document.body.classList.remove('theme-light', 'theme-dark', 'font-sans', 'font-serif', 'font-mono', 'accent-blue', 'accent-green', 'accent-purple');
     document.body.classList.add(
       `theme-${settings.theme || 'light'}`,
       `font-${settings.font || 'sans'}`,
-      `accent-${settings.color || 'blue'}`,
-      `bg-${settings.pattern || 'solid'}`
+      `accent-${settings.color || 'blue'}`
     );
-  }, [settings.theme, settings.font, settings.color, settings.pattern]);
+  }, [settings.theme, settings.font, settings.color]);
 
   // Show auth modal if not authenticated
   useEffect(() => {
@@ -226,7 +220,15 @@ function AppContent() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto py-2">
             {currentSections.map((sectionId) => {
-              const sectionLabel = sectionId;
+              const sectionLabel = {
+                consultations: t('sections.consultations'),
+                prescriptions: t('sections.prescriptions'),
+                investigations: t('sections.investigations'),
+                procedures: t('sections.procedures'),
+                templates: t('sections.templates'),
+                calculators: t('sections.calculators'),
+                urgences: t('sections.urgences')
+              }[sectionId];
 
               return (
                 <button

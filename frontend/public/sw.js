@@ -41,52 +41,58 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event - Network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return;
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Skip unsupported schemes
-        if (event.request.url.startsWith('chrome-extension://')) {
-          return response;
+  // Cache API responses for offline reliability
+  if (event.request.url.includes('/api/') && event.request.method === 'GET') {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        // Only cache successful responses
-        if (!response || response.status !== 200 || response.type === 'error') {
-          return response;
-        }
-        // Cache API responses and other GET requests
-        if (event.request.url.includes('/api/')) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        } else {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Try to return from cache
-        return caches.match(event.request)
-          .then((cachedResponse) => {
-            if (cachedResponse) {
-              return cachedResponse;
+        return fetch(event.request)
+          .then((response) => {
+            if (!response || response.status !== 200) {
+              return response;
             }
-            // Return offline page or empty response
-            if (event.request.destination === 'document') {
-              return caches.match('/index.html');
-            }
-            return new Response('Network error occurred', {
-              status: 408,
-              statusText: 'Request Timeout'
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+            return response;
+          })
+          .catch(() => {
+            return new Response('Offline: API data unavailable', {
+              status: 503,
+              statusText: 'Offline API'
             });
           });
       })
-  );
+    );
+    return;
+  }
+
+  // Skip unsupported schemes (chrome-extension, etc.)
+  if (event.request.url.startsWith('chrome-extension://')) {
+    return response;
+  }
+
+  // Only cache successful responses
+  if (!response || response.status !== 200 || response.type === 'error') {
+    return response;
+  }
+
+  // Clone the response
+  const responseToCache = response.clone();
+  caches.open(CACHE_NAME)
+    .then((cache) => {
+      cache.put(event.request, responseToCache);
+    });
+
+  return response;
 });
 
 // Background sync for offline actions

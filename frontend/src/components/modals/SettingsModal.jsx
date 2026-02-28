@@ -71,14 +71,6 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
               <option value="sans">Sans</option>
               <option value="serif">Serif</option>
               <option value="mono">Mono</option>
-              <option value="roboto">Roboto</option>
-              <option value="lato">Lato</option>
-              <option value="oswald">Oswald</option>
-              <option value="merriweather">Merriweather</option>
-              <option value="quicksand">Quicksand</option>
-              <option value="ubuntu">Ubuntu</option>
-              <option value="courier">Courier New</option>
-              <option value="poppins">Poppins</option>
             </select>
           </div>
           <div className="mb-6">
@@ -87,29 +79,6 @@ export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate
               <option value="blue">Blue</option>
               <option value="green">Green</option>
               <option value="purple">Purple</option>
-              <option value="red">Red</option>
-              <option value="yellow">Yellow</option>
-              <option value="pink">Pink</option>
-              <option value="orange">Orange</option>
-              <option value="teal">Teal</option>
-              <option value="gray">Gray</option>
-              <option value="cyan">Cyan</option>
-            </select>
-          </div>
-          <div className="mb-6">
-            <label className="block font-semibold mb-2">Background Pattern</label>
-            <select className="w-full p-2 rounded border" onChange={e => onUpdate({ ...settings, pattern: e.target.value })} value={settings?.pattern || 'solid'}>
-              <option value="solid">Solid</option>
-              <option value="gradient-ombre">Gradient Ombre</option>
-              <option value="gradient-dark">Gradient Dark</option>
-              <option value="pattern-dots">Dots</option>
-              <option value="pattern-stripes">Stripes</option>
-              <option value="texture-paper">Paper Texture</option>
-              <option value="texture-fabric">Fabric Texture</option>
-              <option value="pattern-grid">Grid</option>
-              <option value="pattern-chevron">Chevron</option>
-              <option value="pattern-wave">Wave</option>
-              <option value="pattern-cross">Cross</option>
             </select>
           </div>
 
