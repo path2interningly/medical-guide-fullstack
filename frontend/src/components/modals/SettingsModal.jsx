@@ -30,6 +30,8 @@ import { useState } from 'react';
 import TrashModal from './TrashModal';
 
 export default function SettingsModal({ isOpen, onClose, settings = {}, onUpdate, currentSpecialty, specialties, onAddSpecialty, onRenameSpecialty, onDeleteSpecialty, onUndoSpecialty }) {
+  // Runtime guard to ensure settings is always defined
+  if (!settings) settings = {};
   const [showTrash, setShowTrash] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState('');
