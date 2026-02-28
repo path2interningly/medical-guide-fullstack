@@ -89,30 +89,6 @@
 .font-mono {
   font-family: 'Fira Mono', 'Menlo', 'Monaco', monospace;
 }
-.font-roboto {
-  font-family: 'Roboto', 'Arial', sans-serif;
-}
-.font-lato {
-  font-family: 'Lato', 'Arial', sans-serif;
-}
-.font-oswald {
-  font-family: 'Oswald', 'Arial', sans-serif;
-}
-.font-merriweather {
-  font-family: 'Merriweather', 'Georgia', serif;
-}
-.font-quicksand {
-  font-family: 'Quicksand', 'Arial', sans-serif;
-}
-.font-ubuntu {
-  font-family: 'Ubuntu', 'Arial', sans-serif;
-}
-.font-courier {
-  font-family: 'Courier New', Courier, monospace;
-}
-.font-poppins {
-  font-family: 'Poppins', 'Arial', sans-serif;
-}
 
 /* Accent color classes */
 .accent-blue {
@@ -124,52 +100,60 @@
 .accent-purple {
   --accent: #7c3aed;
 }
-.accent-red {
-  --accent: #dc2626;
-}
-.accent-yellow {
-  --accent: #facc15;
-}
-.accent-pink {
-  --accent: #ec4899;
-}
-.accent-orange {
-  --accent: #f97316;
-}
-.accent-teal {
-  --accent: #14b8a6;
-}
-.accent-gray {
-  --accent: #64748b;
-}
-.accent-cyan {
-  --accent: #06b6d4;
-}
-.accent-lime {
-  --accent: #84cc16;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  --safe-area-inset-top: env(safe-area-inset-top, 0);
+  --safe-area-inset-right: env(safe-area-inset-right, 0);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+  --safe-area-inset-left: env(safe-area-inset-left, 0);
 }
 
-/* Background pattern classes */
-.bg-pattern-grid {
-  background-color: var(--accent);
-  background-image: linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
+body {
+  @apply bg-gray-50 text-gray-900;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
-.bg-pattern-chevron {
-  background-color: var(--accent);
-  background-image: repeating-linear-gradient(135deg, #fff 0px, #fff 2px, transparent 2px, transparent 10px);
+
+input, textarea, button, select {
+  -webkit-user-select: text;
+  user-select: text;
 }
-.bg-pattern-wave {
-  background-color: var(--accent);
-  background-image: url('https://www.transparenttextures.com/patterns/wave.png');
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .modal-content {
+    max-height: 90vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  input, textarea, select {
+    padding: 12px;
+    font-size: 16px; /* Prevent zoom on iOS input focus */
+  }
 }
-.bg-pattern-cross {
-  background-color: var(--accent);
-  background-image: url('https://www.transparenttextures.com/patterns/cross.png');
-}
-.bg-pattern-stars {
-  background-color: var(--accent);
-  background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+
+/* Prevent overscroll on iOS */
+@supports (padding: max(0px)) {
+  body, html {
+    overscroll-behavior-y: contain;
+  }
 }
 
 /* Smooth scrolling for better mobile experience */
