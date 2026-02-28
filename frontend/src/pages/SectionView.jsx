@@ -93,7 +93,6 @@ export default function SectionView({ specialty, section, showContextHints }) {
 
   const handleEdit = (card, mode = 'manual') => {
     setEditingCard(card);
-    const [moveCardModal, setMoveCardModal] = useState({ open: false, card: null });
     if (mode === 'manual') {
       setShowManualEditor(true);
     } else {
