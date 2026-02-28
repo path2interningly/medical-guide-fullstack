@@ -50,6 +50,13 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  // During development, always treat user as authenticated
+  useEffect(() => {
+    setUser({ name: 'Dev User', email: 'dev@localhost' });
+    setToken('dev-token');
+    setLoading(false);
+  }, []);
+
   const login = async (email, password) => {
     try {
       const response = await fetch(`${AUTH_URL}/login`, {
