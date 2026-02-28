@@ -9,6 +9,8 @@ import ContextMenu from '../components/modals/ContextMenu';
 import { exportCardsToPDF } from '../services/pdfExport';
 
 export default function SectionView({ specialty, section, showContextHints }) {
+    // Move Card Modal state (must be top-level)
+    const [moveCardModal, setMoveCardModal] = useState({ open: false, card: null });
   const [page, setPage] = useState(1);
   const pageSize = 12;
 
