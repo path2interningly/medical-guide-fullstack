@@ -117,13 +117,26 @@ export default function CustomizationModal({ isOpen, onClose, settings, onUpdate
         <div className="flex-1 p-8 overflow-y-auto">
           {/* Live Preview */}
           <div className="mb-6">
-            <div className="rounded-lg shadow p-4" style={{ background: 'var(--palette-color8)', color: 'var(--palette-color9)', fontFamily: 'var(--custom-font, inherit)' }}>
-              <span style={{ color: 'var(--palette-color10)', fontFamily: 'var(--custom-font, inherit)', fontSize: '1.25rem', fontWeight: 600 }}>
-                Med in a Pocket
-              </span>
-              <button style={{ marginLeft: 16, background: 'var(--palette-color11)', color: 'var(--palette-color12)', fontFamily: 'var(--custom-font, inherit)', borderRadius: '8px', padding: '0.5rem 1rem', border: 'none', fontWeight: 500 }}>
-                Sample Button
-              </button>
+            <div className="rounded-lg shadow p-4" style={{ background: 'var(--palette-color8)', color: 'var(--palette-color9)', fontFamily: 'var(--custom-font, inherit)', minHeight: '320px', minWidth: '100%', boxSizing: 'border-box' }}>
+              {/* Miniature Med in a Pocket Home Page Preview */}
+              <div style={{ background: previewSettings.background || 'var(--palette-color1)', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', fontFamily: 'var(--custom-font, inherit)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--palette-color10)' }}>Med in a Pocket</span>
+                  <button style={{ background: 'var(--palette-color11)', color: 'var(--palette-color12)', fontFamily: 'var(--custom-font, inherit)', borderRadius: '8px', padding: '0.5rem 1rem', border: 'none', fontWeight: 500 }}>Logout</button>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  {['Consultations','Prescriptions','Investigations','Procedures','Templates','Calculators','Emergencies'].map((tab, idx) => (
+                    <button key={tab} style={{ background: idx === 0 ? 'var(--palette-color15)' : 'var(--palette-color16)', color: idx === 0 ? 'var(--palette-color17)' : 'var(--palette-color18)', borderRadius: '6px', padding: '0.5rem 1rem', border: 'none', fontFamily: 'var(--custom-font, inherit)', fontWeight: 600, fontSize: '0.95rem' }}>{tab}</button>
+                  ))}
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--palette-color20)' }}>Consultations by Symptom</span>
+                </div>
+                <div style={{ background: 'var(--palette-color34)', border: '2px dashed var(--palette-color35)', borderRadius: '8px', padding: '1.5rem', textAlign: 'center' }}>
+                  <span style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--palette-color36)' }}>No content</span>
+                  <div style={{ color: 'var(--palette-color37)', fontSize: '0.95rem', marginTop: '0.5rem' }}>Click + Create Card to add your first entry</div>
+                </div>
+              </div>
             </div>
           </div>
           {/* Category Controls */}
