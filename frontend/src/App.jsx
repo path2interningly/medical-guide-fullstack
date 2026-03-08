@@ -218,27 +218,38 @@ function AppContent() {
       {/* Sections Navigation */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto py-2">
+          <div className="flex gap-3 overflow-x-auto py-4">
             {currentSections.map((sectionId) => {
               const sectionLabel = {
-                consultations: t('sections.consultations'),
-                prescriptions: t('sections.prescriptions'),
-                investigations: t('sections.investigations'),
-                procedures: t('sections.procedures'),
-                templates: t('sections.templates'),
-                calculators: t('sections.calculators'),
-                urgences: t('sections.urgences')
+                consultations: '💬 ' + t('sections.consultations'),
+                prescriptions: '💊 ' + t('sections.prescriptions'),
+                investigations: '🔬 ' + t('sections.investigations'),
+                procedures: '🩺 ' + t('sections.procedures'),
+                templates: '📄 ' + t('sections.templates'),
+                calculators: '🧮 ' + t('sections.calculators'),
+                urgences: '🚨 ' + t('sections.urgences')
               }[sectionId];
+
+              const colorMap = {
+                consultations: 'bg-pink-200 text-pink-700',
+                prescriptions: 'bg-purple-200 text-purple-700',
+                investigations: 'bg-blue-200 text-blue-700',
+                procedures: 'bg-green-200 text-green-700',
+                templates: 'bg-yellow-200 text-yellow-700',
+                calculators: 'bg-cyan-200 text-cyan-700',
+                urgences: 'bg-red-200 text-red-700',
+              };
 
               return (
                 <button
                   key={sectionId}
                   onClick={() => setSection(sectionId)}
-                  className={`px-4 py-2 rounded-t-lg whitespace-nowrap transition font-semibold ${
+                  className={`px-5 py-2 rounded-full font-bold shadow transition-all border-2 border-white whitespace-nowrap text-base focus:outline-none focus:ring-2 focus:ring-pink-300 ${
                     section === sectionId
-                      ? "bg-gradient-to-br from-blue-50 to-indigo-100 text-indigo-700 border-b-2 border-indigo-600"
-                      : "text-gray-600 hover:bg-gray-100"
+                      ? `${colorMap[sectionId]} scale-105 ring-2 ring-pink-300`
+                      : `${colorMap[sectionId]} opacity-80 hover:opacity-100 hover:scale-105`
                   }`}
+                  style={{ minWidth: 140 }}
                 >
                   {sectionLabel}
                 </button>
