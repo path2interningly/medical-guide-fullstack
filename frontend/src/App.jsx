@@ -133,8 +133,8 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <header className="bg-white shadow-md">
+    <div className="min-h-screen bg-animated-gradient theme-light font-sans">
+      <header className="preview-bg shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             {isEditingTitle ? (
