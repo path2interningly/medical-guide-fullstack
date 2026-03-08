@@ -159,7 +159,7 @@ function AppContent() {
                 onDoubleClick={() => setIsEditingTitle(true)}
                 title="Double-click to edit"
               >
-                {customTitle}
+                {customTitle} 🚑
               </h1>
             )}
             <div className="flex gap-2 items-center">
