@@ -133,10 +133,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-animated-gradient theme-light font-sans">
-      <header className="preview-bg shadow-md">
+    <div className="min-h-screen bg-pink-50 font-poppins">
+      <header className="bg-white shadow-lg rounded-2xl mx-2 mt-4 p-4">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             {isEditingTitle ? (
               <input
                 type="text"
@@ -155,20 +155,20 @@ function AppContent() {
               />
             ) : (
               <h1 
-                className="text-3xl font-bold text-indigo-600 cursor-pointer hover:text-indigo-700 transition"
+                className="text-4xl font-extrabold text-pink-500 cursor-pointer hover:text-pink-600 transition drop-shadow-lg"
                 onDoubleClick={() => setIsEditingTitle(true)}
                 title="Double-click to edit"
               >
                 {customTitle} 🚑
               </h1>
             )}
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-3 items-center mt-2 sm:mt-0">
               <div className="text-sm text-gray-600">
                 👤 {user?.name || user?.email}
               </div>
               <button
                 onClick={logout}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                className="px-4 py-2 bg-pink-400 text-white rounded-full shadow hover:bg-pink-500 text-base font-semibold transition-all"
                 title="Logout"
               >
                 Logout
@@ -176,14 +176,14 @@ function AppContent() {
               <select
                 value={i18n.language}
                 onChange={e => i18n.changeLanguage(e.target.value)}
-                className="ml-4 px-2 py-1 border rounded"
+                className="ml-2 px-3 py-2 border-2 border-pink-200 rounded-full bg-white text-pink-500 font-semibold shadow-sm focus:ring-2 focus:ring-pink-300"
               >
                 <option value="en">English</option>
                 <option value="fr">Français</option>
               </select>
               <button
                 onClick={() => setShowSettings(true)}
-                className="ml-2 px-3 py-2 text-2xl hover:text-pink-500 transition"
+                className="ml-2 px-3 py-2 text-2xl bg-pink-100 rounded-full hover:bg-pink-200 transition shadow"
                 title="Settings"
               >
                 ⚙️
@@ -192,21 +192,21 @@ function AppContent() {
           </div>
 
           {/* Specialty Selector & Links */}
-          <div className="mt-4 flex gap-3 items-center">
+          <div className="mt-6 flex gap-4 items-center">
             <select
               value={specialty}
               onChange={e => setSpecialty(e.target.value)}
-              className="px-4 py-2 border rounded-lg bg-white font-semibold text-gray-700"
+              className="px-4 py-2 border-2 border-pink-200 rounded-full bg-white font-semibold text-pink-500 shadow-sm focus:ring-2 focus:ring-pink-300"
               title="Select specialty"
             >
               {Object.entries(specialties)
                   .map(([key, data]) => (
                     <option key={key} value={key}>{data.name}</option>
                   ))}
-              </select>
+            </select>
             <button
               onClick={() => handleEditLinks(specialty)}
-              className="px-3 py-2 rounded bg-blue-200 hover:bg-blue-300 text-sm font-semibold transition"
+              className="px-4 py-2 rounded-full bg-pink-200 hover:bg-pink-300 text-base font-semibold text-pink-700 shadow transition-all"
               title="Edit specialty links"
             >
               🔗 Links
