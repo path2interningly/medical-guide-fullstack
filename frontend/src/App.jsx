@@ -133,11 +133,10 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f7f4] font-poppins">
-      {/* Hero/Header Section */}
-      <header className="max-w-5xl mx-auto mt-8 mb-6 p-8 rounded-3xl shadow-xl bg-gradient-to-br from-[#e3e9e2] to-[#f6f7f4] flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-        <div className="flex-1 z-10">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <header className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
             {isEditingTitle ? (
               <input
                 type="text"
@@ -156,20 +155,20 @@ function AppContent() {
               />
             ) : (
               <h1 
-                className="text-5xl font-extrabold text-[#3d4c3d] cursor-pointer hover:text-green-700 transition drop-shadow-lg tracking-tight"
+                className="text-3xl font-bold text-indigo-600 cursor-pointer hover:text-indigo-700 transition"
                 onDoubleClick={() => setIsEditingTitle(true)}
                 title="Double-click to edit"
               >
-                {customTitle} 🚑
+                {customTitle}
               </h1>
             )}
-            <div className="flex gap-3 items-center mt-2 sm:mt-0">
+            <div className="flex gap-2 items-center">
               <div className="text-sm text-gray-600">
                 👤 {user?.name || user?.email}
               </div>
               <button
                 onClick={logout}
-                className="px-4 py-2 bg-[#e3e9e2] text-[#3d4c3d] rounded-full shadow hover:bg-green-200 text-base font-semibold border border-[#b7c2b1] transition-all"
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
                 title="Logout"
               >
                 Logout
@@ -177,14 +176,14 @@ function AppContent() {
               <select
                 value={i18n.language}
                 onChange={e => i18n.changeLanguage(e.target.value)}
-                className="ml-2 px-3 py-2 border-2 border-[#b7c2b1] rounded-full bg-white text-[#3d4c3d] font-semibold shadow-sm focus:ring-2 focus:ring-green-200"
+                className="ml-4 px-2 py-1 border rounded"
               >
                 <option value="en">English</option>
                 <option value="fr">Français</option>
               </select>
               <button
                 onClick={() => setShowSettings(true)}
-                className="ml-2 px-3 py-2 text-2xl bg-[#e3e9e2] rounded-full hover:bg-green-100 transition shadow border border-[#b7c2b1]"
+                className="ml-2 px-3 py-2 text-2xl hover:text-pink-500 transition"
                 title="Settings"
               >
                 ⚙️
@@ -193,21 +192,21 @@ function AppContent() {
           </div>
 
           {/* Specialty Selector & Links */}
-          <div className="mt-8 flex gap-4 items-center">
+          <div className="mt-4 flex gap-3 items-center">
             <select
               value={specialty}
               onChange={e => setSpecialty(e.target.value)}
-              className="px-4 py-2 border-2 border-[#b7c2b1] rounded-full bg-white font-semibold text-[#3d4c3d] shadow-sm focus:ring-2 focus:ring-green-200"
+              className="px-4 py-2 border rounded-lg bg-white font-semibold text-gray-700"
               title="Select specialty"
             >
               {Object.entries(specialties)
                   .map(([key, data]) => (
                     <option key={key} value={key}>{data.name}</option>
                   ))}
-            </select>
+              </select>
             <button
               onClick={() => handleEditLinks(specialty)}
-              className="px-4 py-2 rounded-full bg-[#e3e9e2] hover:bg-green-100 text-base font-semibold text-[#3d4c3d] shadow border border-[#b7c2b1] transition-all"
+              className="px-3 py-2 rounded bg-blue-200 hover:bg-blue-300 text-sm font-semibold transition"
               title="Edit specialty links"
             >
               🔗 Links
@@ -217,40 +216,29 @@ function AppContent() {
       </header>
 
       {/* Sections Navigation */}
-      <div className="bg-white/80 border-b rounded-2xl shadow max-w-5xl mx-auto mb-8">
+      <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-3 overflow-x-auto py-4">
+          <div className="flex gap-1 overflow-x-auto py-2">
             {currentSections.map((sectionId) => {
               const sectionLabel = {
-                consultations: '💬 ' + t('sections.consultations'),
-                prescriptions: '💊 ' + t('sections.prescriptions'),
-                investigations: '🔬 ' + t('sections.investigations'),
-                procedures: '🩺 ' + t('sections.procedures'),
-                templates: '📄 ' + t('sections.templates'),
-                calculators: '🧮 ' + t('sections.calculators'),
-                urgences: '🚨 ' + t('sections.urgences')
+                consultations: t('sections.consultations'),
+                prescriptions: t('sections.prescriptions'),
+                investigations: t('sections.investigations'),
+                procedures: t('sections.procedures'),
+                templates: t('sections.templates'),
+                calculators: t('sections.calculators'),
+                urgences: t('sections.urgences')
               }[sectionId];
-
-              const colorMap = {
-                consultations: 'bg-pink-200 text-pink-700',
-                prescriptions: 'bg-purple-200 text-purple-700',
-                investigations: 'bg-blue-200 text-blue-700',
-                procedures: 'bg-green-200 text-green-700',
-                templates: 'bg-yellow-200 text-yellow-700',
-                calculators: 'bg-cyan-200 text-cyan-700',
-                urgences: 'bg-red-200 text-red-700',
-              };
 
               return (
                 <button
                   key={sectionId}
                   onClick={() => setSection(sectionId)}
-                  className={`px-5 py-2 rounded-full font-bold shadow transition-all border-2 border-white whitespace-nowrap text-base focus:outline-none focus:ring-2 focus:ring-pink-300 ${
+                  className={`px-4 py-2 rounded-t-lg whitespace-nowrap transition font-semibold ${
                     section === sectionId
-                      ? `${colorMap[sectionId]} scale-105 ring-2 ring-pink-300`
-                      : `${colorMap[sectionId]} opacity-80 hover:opacity-100 hover:scale-105`
+                      ? "bg-gradient-to-br from-blue-50 to-indigo-100 text-indigo-700 border-b-2 border-indigo-600"
+                      : "text-gray-600 hover:bg-gray-100"
                   }`}
-                  style={{ minWidth: 140 }}
                 >
                   {sectionLabel}
                 </button>
@@ -260,17 +248,15 @@ function AppContent() {
         </div>
       </div>
 
-      <main className="max-w-5xl mx-auto px-4 py-10 grid grid-cols-1 gap-8">
-        <div className="rounded-3xl shadow-xl bg-white/90 p-8">
-          <SectionView
-            specialty={specialty}
-            section={section}
-            showContextHints={settings.showContextHints}
-          />
-        </div>
+      <main className="max-w-7xl mx-auto">
+        <SectionView
+          specialty={specialty}
+          section={section}
+          showContextHints={settings.showContextHints}
+        />
       </main>
 
-      <footer className="bg-white/80 border-t mt-12 rounded-t-2xl shadow max-w-5xl mx-auto">
+      <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 py-4 text-center text-gray-600 text-sm">
           <p>Medical Guide</p>
         </div>
