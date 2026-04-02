@@ -30,6 +30,7 @@
    - SUPABASE_URL
    - SUPABASE_SERVICE_ROLE_KEY
    - JWT_SECRET (generate new: `openssl rand -base64 32`)
+   - OPENROUTER_API_KEY or OPENAI_API_KEY
    - PORT=3001
    - NODE_ENV=production
    - FRONTEND_URL (update after deploying frontend)

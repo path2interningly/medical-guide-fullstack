@@ -32,6 +32,7 @@
 4. Add environment variables in Railway dashboard:
    - Copy all variables from `.env.production`
    - **IMPORTANT**: Change `JWT_SECRET` to a new random string
+   - Set `OPENROUTER_API_KEY` or `OPENAI_API_KEY` for AI generation
    - Update `FRONTEND_URL` after deploying frontend
 
 5. Run database migration:
@@ -128,6 +129,7 @@ If you encounter issues:
 2. Check Vercel logs in dashboard
 3. Verify environment variables
 4. Ensure database migration ran successfully
+5. Ensure the backend AI key is set in the hosting provider environment
 
 ---
 

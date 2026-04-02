@@ -3,7 +3,9 @@
  * Handles card generation with streaming support
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 const AI_PROXY_URL = `${API_BASE_URL}/ai/chat`;
 
 /**
@@ -97,7 +99,7 @@ Design for visual scannability - medical students should quickly spot critical i
         ...getAuthHeader()
       },
       body: JSON.stringify({
-        model: import.meta.env.VITE_AI_MODEL || 'anthropic/claude-3.5-sonnet',
+        model: import.meta.env.VITE_AI_MODEL || 'openai/gpt-4o',
         messages,
         temperature: 0.7,
         max_tokens: 4000
@@ -105,8 +107,11 @@ Design for visual scannability - medical students should quickly spot critical i
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'API request failed');
+      const error = await response.json().catch(() => ({}));
+      const message = typeof error.error === 'string'
+        ? error.error
+        : error.error?.message || 'API request failed';
+      throw new Error(message);
     }
 
     const data = await response.json();
